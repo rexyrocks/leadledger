@@ -15,3 +15,15 @@ One upstream Starlette warning notes that its httpx TestClient integration is de
 Not verified: live LLM/provider calls, live DNS deliverability, frontend visualization, Docker image execution/container recreation, hosted deployment, multiple application processes, or production authentication. Docker's development image remains configurable; pin a tested immutable digest before using that path for the final demo.
 
 Reproduce with `python -m pytest`, `python scripts/check_contracts.py`, and the running-API `python scripts/demo.py`. See [BACKEND.md](BACKEND.md) for setup and [CONTRACTS.md](CONTRACTS.md) for the teammate handoff.
+
+## Windows test compatibility — October 18, 2026
+
+The original graph-test fixture unconditionally imported `redislite`, which is unavailable on native Windows. Tests now support an existing FalkorDB TCP server with `--graph-backend=server`. Installing the `local` extra on Windows no longer attempts the unsupported native dependency. Default auto mode reports explicit skips when an embedded runtime is unavailable; skipped graph tests are not reported as validated backend behavior.
+
+- **54 tests passed in server mode**, with every attempted `redislite` import deliberately blocked in the test process. The real TCP engine was FalkorDB 4.18.3 running locally on macOS, reached through the same official Python TCP client used with Docker.
+- **54 tests passed in embedded mode**; all 24 shared examples and the hash vector still passed.
+- A missing-embedded-dependency check produced 8 passes and 1 explicit skip for the selected representative tests, rather than import errors.
+- Explicit server mode with an unavailable server produced one setup message and exit code 4; no graph tests were treated as passed.
+- After the TCP suite, the external server remained running and its disposable test graphs had been removed.
+
+Windows PowerShell setup is documented in [BACKEND.md](BACKEND.md#windows-powershell-use-docker-not-falkordblite). Actual Windows execution and Docker Desktop/container startup remain unverified on this macOS host. This change fixes the cross-platform test-database selection; it is not a claim that frontend or live-agent testing has been completed.

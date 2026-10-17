@@ -12,6 +12,8 @@ Built by **Kunal and Shubhangi** for Graph Hacks.
 
 See [local setup and demo commands](docs/BACKEND.md), [the integration guide](docs/CONTRACTS.md), and [the accepted plan](PLAN.md).
 
+**Windows:** use the [PowerShell + Docker instructions](docs/BACKEND.md#windows-powershell-use-docker-not-falkordblite). Embedded FalkorDBLite does not support native Windows. With a running Docker database, the full test command is `python -m pytest --graph-backend=server`; the `local` extra is unnecessary.
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate

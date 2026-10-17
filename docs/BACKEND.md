@@ -15,7 +15,33 @@ python -m uvicorn leadledger.api:app --host 127.0.0.1 --port 8000 --workers 1
 
 Open `http://127.0.0.1:8000/docs`. FalkorDB Browser is at `http://127.0.0.1:3000`. The compose service exposes only localhost ports and explicitly stores AOF files in a named `/data` volume. The compose file is provided but could not be tested here because Docker is unavailable. Set `FALKORDB_IMAGE` to a tested immutable image digest before the final Docker demo; `latest` is only a development default.
 
-## Embedded alternative — verified locally
+## Windows (PowerShell): use Docker, not FalkorDBLite
+
+Native Windows Python can use the normal FalkorDB TCP client. It does **not** need `redislite` or the `local` extra. Run Docker Desktop with Linux containers; its WSL 2 backend is a supported Windows setup. Install prerequisites using [Docker's Windows instructions](https://docs.docker.com/desktop/setup/install/windows-install/).
+
+From the repository root, after pulling the backend branch's compatibility fix:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[test]"
+docker compose up -d --wait
+.\.venv\Scripts\python.exe -m pytest --graph-backend=server
+.\.venv\Scripts\python.exe scripts/check_contracts.py
+```
+
+The commands invoke the virtual environment directly, so PowerShell activation policy does not need to change. Python 3.12+ is required. If this checkout already has an environment, reuse it. `falkordblite==0.10.0` is only an embedded macOS/Linux dependency; the `local` extra now excludes unsupported Windows installs.
+
+To run the demo backend on Windows, in the same repository:
+
+```powershell
+$env:LEADLEDGER_DB = "server"
+.\.venv\Scripts\python.exe -m leadledger.seed
+.\.venv\Scripts\python.exe -m uvicorn leadledger.api:app --host 127.0.0.1 --port 8000 --workers 1
+```
+
+Seed once, then omit the seed command on later starts. In a second PowerShell terminal, run `.\.venv\Scripts\python.exe scripts/demo.py`. Alternatively run the Linux setup wholly inside WSL2 with a Linux Python environment; do not reuse the Windows `.venv` there.
+
+## Embedded alternative — macOS/Linux
 
 ```bash
 python3 -m venv .venv
@@ -47,13 +73,28 @@ The seed command creates twenty active Lead records for eighteen canonical peopl
 
 ## Verification
 
+For an existing Docker/server database (all client platforms, including Windows):
+
+```bash
+python -m pip install -e '.[test]'
+docker compose up -d --wait
+python -m pytest --graph-backend=server
+python scripts/check_contracts.py
+```
+
+For the embedded engine (macOS/Linux with the optional native runtime):
+
 ```bash
 python scripts/check_contracts.py
 python -m pip install -e '.[local,test]'
-python -m pytest
+python -m pytest --graph-backend=embedded
 ```
 
-Tests use isolated graph names in a dedicated embedded test database and remove only those disposable graphs. They run actual Cypher for stale detection, cross-campaign contact checks, policy blocking, optimistic version guards and historical path retrieval. Credentials, live LLM calls and public email delivery are not tested. Synthetic syntax/DNS checks deliberately do not establish real deliverability.
+Without a flag, `auto` uses embedded FalkorDB on macOS/Linux if installed. On unsupported platforms or when that optional dependency is missing, graph-dependent tests are explicitly **skipped** with setup instructions; schema-only tests still run. Skips do not mean the backend passed. Select `server` explicitly for a complete Windows run. Explicit server mode fails with a single setup message if the server is unavailable or is plain Redis; it never silently substitutes fixtures for the graph engine.
+
+Server tests default to `127.0.0.1:6379`. Override with `FALKORDB_TEST_HOST`, `FALKORDB_TEST_PORT`, and optional `FALKORDB_TEST_PASSWORD`. Set `LEADLEDGER_TEST_DB=server` instead of the CLI flag if preferred. These test variables are deliberately separate from application database settings.
+
+Tests create unique `test_<uuid>` graph names and delete only those disposable graphs. They never use `FALKORDB_GRAPH`, flush the database, or shut down an external server. The embedded path uses a separate temporary database process. They run actual Cypher for stale detection, cross-campaign contact checks, policy blocking, optimistic version guards and historical path retrieval. Live provider credentials, LLM calls and public email delivery are not tested. Synthetic syntax/DNS checks deliberately do not establish real deliverability.
 
 ## Integration boundaries
 
