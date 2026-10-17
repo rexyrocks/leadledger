@@ -6,7 +6,22 @@ LeadLedger is a hackathon prototype for a multi-agent lead-generation workflow w
 
 Built by **Kunal and Shubhangi** for Graph Hacks.
 
-> **Current status:** Shared JSON schemas, API definitions, and mock payloads are committed. Backend implementation is in progress on `kunal/backend`; this README describes the intended MVP, not a completed deployment.
+> **Backend branch:** `kunal/backend` includes the real FalkorDB workflow, API, seeds, policy gates and explanation queries. The current agent adapters are labelled fixture replay; the live agents and frontend still need integration. No real emails are sent.
+
+## Run the backend
+
+See [local setup and demo commands](docs/BACKEND.md), [the integration guide](docs/CONTRACTS.md), and [the accepted plan](PLAN.md).
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[local,test]'
+export LEADLEDGER_DB=embedded
+python -m leadledger.seed
+python -m uvicorn leadledger.api:app --host 127.0.0.1 --port 8000 --workers 1
+```
+
+Open `http://127.0.0.1:8000/docs`. In another terminal, run `python scripts/demo.py`. Embedded mode uses real FalkorDB; macOS requires the `libomp` runtime. Docker setup is also provided in `compose.yaml`.
 
 ## The workflow
 
