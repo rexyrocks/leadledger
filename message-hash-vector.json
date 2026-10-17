@@ -1,0 +1,4 @@
+{
+  "canonical_json": "{\"body_text\":\"Hi Asha,\\nWould you be open to a conversation about a SaaS partnership?\\nKunal\",\"campaign_id\":\"campaign-saas\",\"from_address\":\"kunal@leadgraph.test\",\"mode\":\"log_only\",\"person_id\":\"person-01\",\"subject\":\"A partnership conversation with Acme Demo\",\"to_address\":\"asha@acme.test\"}",
+  "sha256": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+}

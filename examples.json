@@ -1,0 +1,976 @@
+{
+  "ExtractorInput": {
+    "campaign_id": "campaign-saas",
+    "campaign": {
+      "id": "campaign-saas",
+      "name": "SaaS partnerships",
+      "industry": "B2B SaaS",
+      "target_role": "Head of Partnerships",
+      "policy_version": "policy-v1",
+      "verification_ttl_seconds": 604800,
+      "mode": "log_only"
+    },
+    "sources": [
+      {
+        "id": "source-acme-team",
+        "source_record_id": "seed-01",
+        "source_uri": "fixture://acme/team",
+        "source_kind": "contact_page",
+        "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+        "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+        "captured_at": 1792231200,
+        "is_fixture": true
+      }
+    ]
+  },
+  "ExtractionBatch": {
+    "execution_mode": "fixture_replay",
+    "model_id": null,
+    "prompt_version": "extractor-v1",
+    "candidates": [
+      {
+        "source_record_id": "seed-01",
+        "campaign_id": "campaign-saas",
+        "company": {
+          "name": "Acme Demo",
+          "domain": "acme.test",
+          "industry": "B2B SaaS"
+        },
+        "person": {
+          "name": "Asha Demo",
+          "role": "Head of Partnerships",
+          "email": "asha@acme.test"
+        },
+        "evidence": [
+          {
+            "source_id": "source-acme-team",
+            "field": "company",
+            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+          },
+          {
+            "source_id": "source-acme-team",
+            "field": "industry",
+            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+          },
+          {
+            "source_id": "source-acme-team",
+            "field": "name",
+            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+          },
+          {
+            "source_id": "source-acme-team",
+            "field": "role",
+            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+          },
+          {
+            "source_id": "source-acme-team",
+            "field": "email",
+            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+          }
+        ]
+      }
+    ]
+  },
+  "CheckContext": {
+    "lead": {
+      "id": "lead-01",
+      "campaign_id": "campaign-saas",
+      "person_id": "person-01",
+      "company_name": "Acme Demo",
+      "person_name": "Asha Demo",
+      "role": "Head of Partnerships",
+      "email_normalized": "asha@acme.test",
+      "state": "Approved for sending",
+      "version": 6,
+      "duplicate": false,
+      "duplicate_of_id": null,
+      "current_verification_id": "verification-01",
+      "current_draft_id": "draft-01",
+      "current_approval_id": "approval-01",
+      "latest_outreach_id": null,
+      "updated_at": 1792231202,
+      "execution_mode": "fixture_replay"
+    },
+    "company": {
+      "id": "company-acme",
+      "name": "Acme Demo",
+      "domain": "acme.test",
+      "industry": "B2B SaaS"
+    },
+    "person": {
+      "id": "person-01",
+      "name": "Asha Demo",
+      "role": "Head of Partnerships",
+      "email_normalized": "asha@acme.test",
+      "contact_version": 1,
+      "opted_out": false,
+      "suppressed": false
+    },
+    "campaign": {
+      "id": "campaign-saas",
+      "name": "SaaS partnerships",
+      "industry": "B2B SaaS",
+      "target_role": "Head of Partnerships",
+      "policy_version": "policy-v1",
+      "verification_ttl_seconds": 604800,
+      "mode": "log_only"
+    },
+    "evidence": [
+      {
+        "id": "evidence-01",
+        "source_uri": "fixture://acme/team",
+        "source_kind": "contact_page",
+        "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+        "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+        "captured_at": 1792231200,
+        "is_fixture": true,
+        "source_id": "source-acme-team"
+      }
+    ],
+    "previous_reports": [],
+    "history": [],
+    "email_checks": {
+      "syntax": "pass",
+      "mx": "fixture",
+      "mailbox_exists": "unknown",
+      "checked_at": 1792231200,
+      "is_fixture": true,
+      "fixture_result": "present"
+    }
+  },
+  "CheckerAssessment": {
+    "lead_id": "lead-01",
+    "recommendation": "passed",
+    "claims": [
+      {
+        "field": "company",
+        "value": "Acme Demo",
+        "result": "supported",
+        "evidence_ids": [
+          "evidence-01"
+        ],
+        "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+      },
+      {
+        "field": "industry",
+        "value": "B2B SaaS",
+        "result": "supported",
+        "evidence_ids": [
+          "evidence-01"
+        ],
+        "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+      },
+      {
+        "field": "name",
+        "value": "Asha Demo",
+        "result": "supported",
+        "evidence_ids": [
+          "evidence-01"
+        ],
+        "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+      },
+      {
+        "field": "role",
+        "value": "Head of Partnerships",
+        "result": "supported",
+        "evidence_ids": [
+          "evidence-01"
+        ],
+        "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+      },
+      {
+        "field": "email",
+        "value": "asha@acme.test",
+        "result": "supported",
+        "evidence_ids": [
+          "evidence-01"
+        ],
+        "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+      }
+    ],
+    "conflicts": [],
+    "missing_fields": [],
+    "summary": "All five claims are supported by the supplied synthetic snapshot."
+  },
+  "VerificationReport": {
+    "id": "verification-01",
+    "lead_id": "lead-01",
+    "person_id": "person-01",
+    "campaign_id": "campaign-saas",
+    "contact_version": 1,
+    "status": "passed",
+    "checked_at": 1792231200,
+    "valid_until": 1792836000,
+    "assessment": {
+      "lead_id": "lead-01",
+      "recommendation": "passed",
+      "claims": [
+        {
+          "field": "company",
+          "value": "Acme Demo",
+          "result": "supported",
+          "evidence_ids": [
+            "evidence-01"
+          ],
+          "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+        },
+        {
+          "field": "industry",
+          "value": "B2B SaaS",
+          "result": "supported",
+          "evidence_ids": [
+            "evidence-01"
+          ],
+          "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+        },
+        {
+          "field": "name",
+          "value": "Asha Demo",
+          "result": "supported",
+          "evidence_ids": [
+            "evidence-01"
+          ],
+          "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+        },
+        {
+          "field": "role",
+          "value": "Head of Partnerships",
+          "result": "supported",
+          "evidence_ids": [
+            "evidence-01"
+          ],
+          "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+        },
+        {
+          "field": "email",
+          "value": "asha@acme.test",
+          "result": "supported",
+          "evidence_ids": [
+            "evidence-01"
+          ],
+          "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+        }
+      ],
+      "conflicts": [],
+      "missing_fields": [],
+      "summary": "All five claims are supported by the supplied synthetic snapshot."
+    },
+    "email_checks": {
+      "syntax": "pass",
+      "mx": "fixture",
+      "mailbox_exists": "unknown",
+      "checked_at": 1792231200,
+      "is_fixture": true,
+      "fixture_result": "present"
+    },
+    "model_id": null,
+    "prompt_version": "checker-v1",
+    "execution_mode": "fixture_replay",
+    "reason_codes": []
+  },
+  "LeadDetail": {
+    "lead": {
+      "id": "lead-01",
+      "campaign_id": "campaign-saas",
+      "person_id": "person-01",
+      "company_name": "Acme Demo",
+      "person_name": "Asha Demo",
+      "role": "Head of Partnerships",
+      "email_normalized": "asha@acme.test",
+      "state": "Approved for sending",
+      "version": 6,
+      "duplicate": false,
+      "duplicate_of_id": null,
+      "current_verification_id": "verification-01",
+      "current_draft_id": "draft-01",
+      "current_approval_id": "approval-01",
+      "latest_outreach_id": null,
+      "updated_at": 1792231202,
+      "execution_mode": "fixture_replay"
+    },
+    "company": {
+      "id": "company-acme",
+      "name": "Acme Demo",
+      "domain": "acme.test",
+      "industry": "B2B SaaS"
+    },
+    "person": {
+      "id": "person-01",
+      "name": "Asha Demo",
+      "role": "Head of Partnerships",
+      "email_normalized": "asha@acme.test",
+      "contact_version": 1,
+      "opted_out": false,
+      "suppressed": false
+    },
+    "campaign": {
+      "id": "campaign-saas",
+      "name": "SaaS partnerships",
+      "industry": "B2B SaaS",
+      "target_role": "Head of Partnerships",
+      "policy_version": "policy-v1",
+      "verification_ttl_seconds": 604800,
+      "mode": "log_only"
+    },
+    "evidence": [
+      {
+        "id": "evidence-01",
+        "source_uri": "fixture://acme/team",
+        "source_kind": "contact_page",
+        "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+        "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+        "captured_at": 1792231200,
+        "is_fixture": true,
+        "source_id": "source-acme-team"
+      }
+    ],
+    "verifications": [
+      {
+        "id": "verification-01",
+        "lead_id": "lead-01",
+        "person_id": "person-01",
+        "campaign_id": "campaign-saas",
+        "contact_version": 1,
+        "status": "passed",
+        "checked_at": 1792231200,
+        "valid_until": 1792836000,
+        "assessment": {
+          "lead_id": "lead-01",
+          "recommendation": "passed",
+          "claims": [
+            {
+              "field": "company",
+              "value": "Acme Demo",
+              "result": "supported",
+              "evidence_ids": [
+                "evidence-01"
+              ],
+              "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+            },
+            {
+              "field": "industry",
+              "value": "B2B SaaS",
+              "result": "supported",
+              "evidence_ids": [
+                "evidence-01"
+              ],
+              "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+            },
+            {
+              "field": "name",
+              "value": "Asha Demo",
+              "result": "supported",
+              "evidence_ids": [
+                "evidence-01"
+              ],
+              "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+            },
+            {
+              "field": "role",
+              "value": "Head of Partnerships",
+              "result": "supported",
+              "evidence_ids": [
+                "evidence-01"
+              ],
+              "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+            },
+            {
+              "field": "email",
+              "value": "asha@acme.test",
+              "result": "supported",
+              "evidence_ids": [
+                "evidence-01"
+              ],
+              "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+            }
+          ],
+          "conflicts": [],
+          "missing_fields": [],
+          "summary": "All five claims are supported by the supplied synthetic snapshot."
+        },
+        "email_checks": {
+          "syntax": "pass",
+          "mx": "fixture",
+          "mailbox_exists": "unknown",
+          "checked_at": 1792231200,
+          "is_fixture": true,
+          "fixture_result": "present"
+        },
+        "model_id": null,
+        "prompt_version": "checker-v1",
+        "execution_mode": "fixture_replay",
+        "reason_codes": []
+      }
+    ],
+    "draft": {
+      "id": "draft-01",
+      "lead_id": "lead-01",
+      "person_id": "person-01",
+      "campaign_id": "campaign-saas",
+      "revision": 1,
+      "to_address": "asha@acme.test",
+      "from_address": "kunal@leadgraph.test",
+      "subject": "A partnership conversation with Acme Demo",
+      "body_text": "Hi Asha,\nWould you be open to a conversation about a SaaS partnership?\nKunal",
+      "mode": "log_only",
+      "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+      "created_at": 1792231201
+    },
+    "approvals": [
+      {
+        "id": "approval-01",
+        "lead_id": "lead-01",
+        "person_id": "person-01",
+        "campaign_id": "campaign-saas",
+        "verification_id": "verification-01",
+        "draft_id": "draft-01",
+        "contact_version": 1,
+        "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+        "policy_version": "policy-v1",
+        "approved_by": "kunal",
+        "approved_at": 1792231202,
+        "revoked": false
+      }
+    ],
+    "outreach": [],
+    "events": [
+      {
+        "id": "event-approval-01",
+        "lead_id": "lead-01",
+        "sequence": 6,
+        "type": "outreach_approved",
+        "actor": "kunal",
+        "at": 1792231202,
+        "from_state": "Awaiting outreach approval",
+        "to_state": "Approved for sending",
+        "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+        "payload": {
+          "approval_id": "approval-01",
+          "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+        }
+      }
+    ]
+  },
+  "LeadList": {
+    "items": [
+      {
+        "id": "lead-01",
+        "campaign_id": "campaign-saas",
+        "person_id": "person-01",
+        "company_name": "Acme Demo",
+        "person_name": "Asha Demo",
+        "role": "Head of Partnerships",
+        "email_normalized": "asha@acme.test",
+        "state": "Approved for sending",
+        "version": 6,
+        "duplicate": false,
+        "duplicate_of_id": null,
+        "current_verification_id": "verification-01",
+        "current_draft_id": "draft-01",
+        "current_approval_id": "approval-01",
+        "latest_outreach_id": null,
+        "updated_at": 1792231202,
+        "execution_mode": "fixture_replay"
+      }
+    ],
+    "total": 1
+  },
+  "GateDecision": {
+    "allowed": true,
+    "reason_codes": [],
+    "lead_id": "lead-01",
+    "lead_version": 6,
+    "verification_id": "verification-01",
+    "approval_id": "approval-01",
+    "draft_id": "draft-01",
+    "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+    "checked_at": 1792231203,
+    "prior_outreach_ids": []
+  },
+  "SendReceipt": {
+    "outreach_id": "outreach-01",
+    "lead_id": "lead-01",
+    "lead_version": 7,
+    "status": "sent",
+    "mode": "log_only",
+    "reason_codes": [],
+    "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+    "recorded_at": 1792231203,
+    "simulated": true
+  },
+  "ExtractRequest": {
+    "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+    "campaign_id": "campaign-saas",
+    "source_ids": [
+      "source-acme-team"
+    ]
+  },
+  "ExtractResponse": {
+    "execution_mode": "fixture_replay",
+    "model_id": null,
+    "prompt_version": "extractor-v1",
+    "items": [
+      {
+        "source_record_id": "seed-01",
+        "lead_id": "lead-01",
+        "person_id": "person-01",
+        "outcome": "inserted",
+        "canonical_lead_id": null,
+        "state": "Discovered",
+        "version": 1
+      }
+    ]
+  },
+  "MutationRequest": {
+    "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+    "expected_version": 6
+  },
+  "DraftRequest": {
+    "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+    "expected_version": 4,
+    "subject": null,
+    "body_text": null
+  },
+  "ApproveRequest": {
+    "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+    "expected_version": 5,
+    "draft_id": "draft-01",
+    "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+    "actor": "kunal"
+  },
+  "OptOutRequest": {
+    "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+    "expected_version": 6,
+    "actor": "shubhangi"
+  },
+  "ScanRequest": {
+    "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+    "campaign_id": "campaign-saas"
+  },
+  "ScanResponse": {
+    "checked_at": 1792231200,
+    "updated": []
+  },
+  "OutcomeRequest": {
+    "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+    "expected_version": 7,
+    "actor": "shubhangi",
+    "outcome": "replied"
+  },
+  "ExplanationGraph": {
+    "outreach_id": "outreach-01",
+    "complete": true,
+    "nodes": [
+      {
+        "data": {
+          "id": "company-acme",
+          "label": "Acme Demo",
+          "type": "Company",
+          "properties": {
+            "id": "company-acme",
+            "name": "Acme Demo",
+            "domain": "acme.test",
+            "industry": "B2B SaaS"
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "person-01",
+          "label": "Asha Demo",
+          "type": "Person",
+          "properties": {
+            "id": "person-01",
+            "name": "Asha Demo",
+            "role": "Head of Partnerships",
+            "email_normalized": "asha@acme.test",
+            "contact_version": 1,
+            "opted_out": false,
+            "suppressed": false
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "verification-01",
+          "label": "Evidence verified",
+          "type": "Verification",
+          "properties": {
+            "id": "verification-01",
+            "lead_id": "lead-01",
+            "person_id": "person-01",
+            "campaign_id": "campaign-saas",
+            "contact_version": 1,
+            "status": "passed",
+            "checked_at": 1792231200,
+            "valid_until": 1792836000,
+            "assessment": {
+              "lead_id": "lead-01",
+              "recommendation": "passed",
+              "claims": [
+                {
+                  "field": "company",
+                  "value": "Acme Demo",
+                  "result": "supported",
+                  "evidence_ids": [
+                    "evidence-01"
+                  ],
+                  "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                },
+                {
+                  "field": "industry",
+                  "value": "B2B SaaS",
+                  "result": "supported",
+                  "evidence_ids": [
+                    "evidence-01"
+                  ],
+                  "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                },
+                {
+                  "field": "name",
+                  "value": "Asha Demo",
+                  "result": "supported",
+                  "evidence_ids": [
+                    "evidence-01"
+                  ],
+                  "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                },
+                {
+                  "field": "role",
+                  "value": "Head of Partnerships",
+                  "result": "supported",
+                  "evidence_ids": [
+                    "evidence-01"
+                  ],
+                  "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                },
+                {
+                  "field": "email",
+                  "value": "asha@acme.test",
+                  "result": "supported",
+                  "evidence_ids": [
+                    "evidence-01"
+                  ],
+                  "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                }
+              ],
+              "conflicts": [],
+              "missing_fields": [],
+              "summary": "All five claims are supported by the supplied synthetic snapshot."
+            },
+            "email_checks": {
+              "syntax": "pass",
+              "mx": "fixture",
+              "mailbox_exists": "unknown",
+              "checked_at": 1792231200,
+              "is_fixture": true,
+              "fixture_result": "present"
+            },
+            "model_id": null,
+            "prompt_version": "checker-v1",
+            "execution_mode": "fixture_replay",
+            "reason_codes": []
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "campaign-saas",
+          "label": "SaaS partnerships",
+          "type": "Campaign",
+          "properties": {
+            "id": "campaign-saas",
+            "name": "SaaS partnerships",
+            "industry": "B2B SaaS",
+            "target_role": "Head of Partnerships",
+            "policy_version": "policy-v1",
+            "verification_ttl_seconds": 604800,
+            "mode": "log_only"
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "approval-01",
+          "label": "Approved by Kunal",
+          "type": "Approval",
+          "properties": {
+            "id": "approval-01",
+            "lead_id": "lead-01",
+            "person_id": "person-01",
+            "campaign_id": "campaign-saas",
+            "verification_id": "verification-01",
+            "draft_id": "draft-01",
+            "contact_version": 1,
+            "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+            "policy_version": "policy-v1",
+            "approved_by": "kunal",
+            "approved_at": 1792231202,
+            "revoked": false
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "draft-01",
+          "label": "A partnership conversation with Acme Demo",
+          "type": "Draft",
+          "properties": {
+            "id": "draft-01",
+            "lead_id": "lead-01",
+            "person_id": "person-01",
+            "campaign_id": "campaign-saas",
+            "revision": 1,
+            "to_address": "asha@acme.test",
+            "from_address": "kunal@leadgraph.test",
+            "subject": "A partnership conversation with Acme Demo",
+            "body_text": "Hi Asha,\nWould you be open to a conversation about a SaaS partnership?\nKunal",
+            "mode": "log_only",
+            "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+            "created_at": 1792231201
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "outreach-01",
+          "label": "Sent — simulated",
+          "type": "Outreach",
+          "properties": {
+            "id": "outreach-01",
+            "lead_id": "lead-01",
+            "lead_version": 7,
+            "status": "sent",
+            "mode": "log_only",
+            "reason_codes": [],
+            "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+            "recorded_at": 1792231203,
+            "simulated": true
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "evidence-01",
+          "label": "Synthetic contact page",
+          "type": "Evidence",
+          "properties": {
+            "id": "evidence-01",
+            "source_uri": "fixture://acme/team",
+            "source_kind": "contact_page",
+            "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+            "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+            "captured_at": 1792231200,
+            "is_fixture": true,
+            "source_id": "source-acme-team"
+          }
+        }
+      },
+      {
+        "data": {
+          "id": "event-approval-01",
+          "label": "Human approval recorded",
+          "type": "Event",
+          "properties": {
+            "id": "event-approval-01",
+            "lead_id": "lead-01",
+            "sequence": 6,
+            "type": "outreach_approved",
+            "actor": "kunal",
+            "at": 1792231202,
+            "from_state": "Awaiting outreach approval",
+            "to_state": "Approved for sending",
+            "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+            "payload": {
+              "approval_id": "approval-01",
+              "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+            }
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "data": {
+          "id": "edge-01",
+          "source": "company-acme",
+          "target": "person-01",
+          "label": "HAS_CONTACT"
+        }
+      },
+      {
+        "data": {
+          "id": "edge-02",
+          "source": "person-01",
+          "target": "verification-01",
+          "label": "VERIFIED_BY"
+        }
+      },
+      {
+        "data": {
+          "id": "edge-03",
+          "source": "verification-01",
+          "target": "campaign-saas",
+          "label": "QUALIFIED_FOR"
+        }
+      },
+      {
+        "data": {
+          "id": "edge-04",
+          "source": "campaign-saas",
+          "target": "approval-01",
+          "label": "AUTHORIZED_BY"
+        }
+      },
+      {
+        "data": {
+          "id": "edge-05",
+          "source": "approval-01",
+          "target": "outreach-01",
+          "label": "SENT_AS"
+        }
+      },
+      {
+        "data": {
+          "id": "edge-06",
+          "source": "approval-01",
+          "target": "verification-01",
+          "label": "BASED_ON"
+        }
+      },
+      {
+        "data": {
+          "id": "edge-07",
+          "source": "approval-01",
+          "target": "draft-01",
+          "label": "APPROVES"
+        }
+      },
+      {
+        "data": {
+          "id": "edge-08",
+          "source": "outreach-01",
+          "target": "draft-01",
+          "label": "USES_DRAFT"
+        }
+      },
+      {
+        "data": {
+          "id": "edge-09",
+          "source": "verification-01",
+          "target": "evidence-01",
+          "label": "SUPPORTED_BY"
+        }
+      },
+      {
+        "data": {
+          "id": "edge-10",
+          "source": "approval-01",
+          "target": "event-approval-01",
+          "label": "HAS_EVENT"
+        }
+      }
+    ],
+    "events": [
+      {
+        "id": "event-approval-01",
+        "lead_id": "lead-01",
+        "sequence": 6,
+        "type": "outreach_approved",
+        "actor": "kunal",
+        "at": 1792231202,
+        "from_state": "Awaiting outreach approval",
+        "to_state": "Approved for sending",
+        "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+        "payload": {
+          "approval_id": "approval-01",
+          "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+        }
+      }
+    ],
+    "summary": "Synthetic evidence and human approval authorized a log-only send."
+  },
+  "ErrorResponse": {
+    "error": {
+      "code": "SEND_BLOCKED",
+      "message": "This contact has opted out.",
+      "details": {
+        "gate": {
+          "allowed": false,
+          "reason_codes": [
+            "OPTED_OUT"
+          ],
+          "lead_id": "lead-01",
+          "lead_version": 6,
+          "verification_id": "verification-01",
+          "approval_id": "approval-01",
+          "draft_id": "draft-01",
+          "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+          "checked_at": 1792231203,
+          "prior_outreach_ids": []
+        }
+      }
+    }
+  },
+  "SendEnvelope": {
+    "outreach_id": "outreach-01",
+    "lead_id": "lead-01",
+    "approval_id": "approval-01",
+    "verification_id": "verification-01",
+    "draft": {
+      "id": "draft-01",
+      "lead_id": "lead-01",
+      "person_id": "person-01",
+      "campaign_id": "campaign-saas",
+      "revision": 1,
+      "to_address": "asha@acme.test",
+      "from_address": "kunal@leadgraph.test",
+      "subject": "A partnership conversation with Acme Demo",
+      "body_text": "Hi Asha,\nWould you be open to a conversation about a SaaS partnership?\nKunal",
+      "mode": "log_only",
+      "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+      "created_at": 1792231201
+    },
+    "idempotency_key": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+    "gate_decision": {
+      "allowed": true,
+      "reason_codes": [],
+      "lead_id": "lead-01",
+      "lead_version": 6,
+      "verification_id": "verification-01",
+      "approval_id": "approval-01",
+      "draft_id": "draft-01",
+      "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+      "checked_at": 1792231203,
+      "prior_outreach_ids": []
+    }
+  },
+  "SenderResult": {
+    "outreach_id": "outreach-01",
+    "status": "logged",
+    "mode": "log_only",
+    "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+    "simulated": true
+  },
+  "Health": {
+    "status": "ok",
+    "graph": "connected",
+    "execution_mode": "fixture_replay",
+    "model_id": null,
+    "sender_mode": "log_only"
+  },
+  "SourceList": {
+    "items": [
+      {
+        "id": "source-acme-team",
+        "source_record_id": "seed-01",
+        "source_uri": "fixture://acme/team",
+        "source_kind": "contact_page",
+        "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+        "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+        "captured_at": 1792231200,
+        "is_fixture": true
+      }
+    ]
+  }
+}

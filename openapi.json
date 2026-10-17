@@ -1,0 +1,4901 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Leadgraph shared contract",
+    "version": "1.0.0",
+    "description": "Local hackathon MVP. No public agent-report ingestion or sender endpoint. All sending is simulated."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8000"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "health",
+        "summary": "Dependency and simulation status",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                },
+                "example": {
+                  "status": "ok",
+                  "graph": "connected",
+                  "execution_mode": "fixture_replay",
+                  "model_id": null,
+                  "sender_mode": "log_only"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sources": {
+      "get": {
+        "operationId": "listSources",
+        "summary": "Permitted immutable source snapshots",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceList"
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "source-acme-team",
+                      "source_record_id": "seed-01",
+                      "source_uri": "fixture://acme/team",
+                      "source_kind": "contact_page",
+                      "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+                      "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+                      "captured_at": 1792231200,
+                      "is_fixture": true
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leads": {
+      "get": {
+        "operationId": "listLeads",
+        "summary": "All leads in the active campaign",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadList"
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "lead-01",
+                      "campaign_id": "campaign-saas",
+                      "person_id": "person-01",
+                      "company_name": "Acme Demo",
+                      "person_name": "Asha Demo",
+                      "role": "Head of Partnerships",
+                      "email_normalized": "asha@acme.test",
+                      "state": "Approved for sending",
+                      "version": 6,
+                      "duplicate": false,
+                      "duplicate_of_id": null,
+                      "current_verification_id": "verification-01",
+                      "current_draft_id": "draft-01",
+                      "current_approval_id": "approval-01",
+                      "latest_outreach_id": null,
+                      "updated_at": 1792231202,
+                      "execution_mode": "fixture_replay"
+                    }
+                  ],
+                  "total": 1
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leads/{lead_id}": {
+      "get": {
+        "operationId": "getLead",
+        "summary": "Full evidence, message and history",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadDetail"
+                },
+                "example": {
+                  "lead": {
+                    "id": "lead-01",
+                    "campaign_id": "campaign-saas",
+                    "person_id": "person-01",
+                    "company_name": "Acme Demo",
+                    "person_name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "state": "Approved for sending",
+                    "version": 6,
+                    "duplicate": false,
+                    "duplicate_of_id": null,
+                    "current_verification_id": "verification-01",
+                    "current_draft_id": "draft-01",
+                    "current_approval_id": "approval-01",
+                    "latest_outreach_id": null,
+                    "updated_at": 1792231202,
+                    "execution_mode": "fixture_replay"
+                  },
+                  "company": {
+                    "id": "company-acme",
+                    "name": "Acme Demo",
+                    "domain": "acme.test",
+                    "industry": "B2B SaaS"
+                  },
+                  "person": {
+                    "id": "person-01",
+                    "name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "contact_version": 1,
+                    "opted_out": false,
+                    "suppressed": false
+                  },
+                  "campaign": {
+                    "id": "campaign-saas",
+                    "name": "SaaS partnerships",
+                    "industry": "B2B SaaS",
+                    "target_role": "Head of Partnerships",
+                    "policy_version": "policy-v1",
+                    "verification_ttl_seconds": 604800,
+                    "mode": "log_only"
+                  },
+                  "evidence": [
+                    {
+                      "id": "evidence-01",
+                      "source_uri": "fixture://acme/team",
+                      "source_kind": "contact_page",
+                      "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+                      "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+                      "captured_at": 1792231200,
+                      "is_fixture": true,
+                      "source_id": "source-acme-team"
+                    }
+                  ],
+                  "verifications": [
+                    {
+                      "id": "verification-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "contact_version": 1,
+                      "status": "passed",
+                      "checked_at": 1792231200,
+                      "valid_until": 1792836000,
+                      "assessment": {
+                        "lead_id": "lead-01",
+                        "recommendation": "passed",
+                        "claims": [
+                          {
+                            "field": "company",
+                            "value": "Acme Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "industry",
+                            "value": "B2B SaaS",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "name",
+                            "value": "Asha Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "role",
+                            "value": "Head of Partnerships",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "email",
+                            "value": "asha@acme.test",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          }
+                        ],
+                        "conflicts": [],
+                        "missing_fields": [],
+                        "summary": "All five claims are supported by the supplied synthetic snapshot."
+                      },
+                      "email_checks": {
+                        "syntax": "pass",
+                        "mx": "fixture",
+                        "mailbox_exists": "unknown",
+                        "checked_at": 1792231200,
+                        "is_fixture": true,
+                        "fixture_result": "present"
+                      },
+                      "model_id": null,
+                      "prompt_version": "checker-v1",
+                      "execution_mode": "fixture_replay",
+                      "reason_codes": []
+                    }
+                  ],
+                  "draft": {
+                    "id": "draft-01",
+                    "lead_id": "lead-01",
+                    "person_id": "person-01",
+                    "campaign_id": "campaign-saas",
+                    "revision": 1,
+                    "to_address": "asha@acme.test",
+                    "from_address": "kunal@leadgraph.test",
+                    "subject": "A partnership conversation with Acme Demo",
+                    "body_text": "Hi Asha,\nWould you be open to a conversation about a SaaS partnership?\nKunal",
+                    "mode": "log_only",
+                    "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                    "created_at": 1792231201
+                  },
+                  "approvals": [
+                    {
+                      "id": "approval-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "verification_id": "verification-01",
+                      "draft_id": "draft-01",
+                      "contact_version": 1,
+                      "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                      "policy_version": "policy-v1",
+                      "approved_by": "kunal",
+                      "approved_at": 1792231202,
+                      "revoked": false
+                    }
+                  ],
+                  "outreach": [],
+                  "events": [
+                    {
+                      "id": "event-approval-01",
+                      "lead_id": "lead-01",
+                      "sequence": 6,
+                      "type": "outreach_approved",
+                      "actor": "kunal",
+                      "at": 1792231202,
+                      "from_state": "Awaiting outreach approval",
+                      "to_state": "Approved for sending",
+                      "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                      "payload": {
+                        "approval_id": "approval-01",
+                        "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lead_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        ]
+      }
+    },
+    "/api/extract": {
+      "post": {
+        "operationId": "extract",
+        "summary": "Extract and persist candidates",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractResponse"
+                },
+                "example": {
+                  "execution_mode": "fixture_replay",
+                  "model_id": null,
+                  "prompt_version": "extractor-v1",
+                  "items": [
+                    {
+                      "source_record_id": "seed-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "outcome": "inserted",
+                      "canonical_lead_id": null,
+                      "state": "Discovered",
+                      "version": 1
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractRequest"
+              },
+              "example": {
+                "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                "campaign_id": "campaign-saas",
+                "source_ids": [
+                  "source-acme-team"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leads/{lead_id}/verify": {
+      "post": {
+        "operationId": "verify",
+        "summary": "Check evidence and commit verification",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadDetail"
+                },
+                "example": {
+                  "lead": {
+                    "id": "lead-01",
+                    "campaign_id": "campaign-saas",
+                    "person_id": "person-01",
+                    "company_name": "Acme Demo",
+                    "person_name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "state": "Approved for sending",
+                    "version": 6,
+                    "duplicate": false,
+                    "duplicate_of_id": null,
+                    "current_verification_id": "verification-01",
+                    "current_draft_id": "draft-01",
+                    "current_approval_id": "approval-01",
+                    "latest_outreach_id": null,
+                    "updated_at": 1792231202,
+                    "execution_mode": "fixture_replay"
+                  },
+                  "company": {
+                    "id": "company-acme",
+                    "name": "Acme Demo",
+                    "domain": "acme.test",
+                    "industry": "B2B SaaS"
+                  },
+                  "person": {
+                    "id": "person-01",
+                    "name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "contact_version": 1,
+                    "opted_out": false,
+                    "suppressed": false
+                  },
+                  "campaign": {
+                    "id": "campaign-saas",
+                    "name": "SaaS partnerships",
+                    "industry": "B2B SaaS",
+                    "target_role": "Head of Partnerships",
+                    "policy_version": "policy-v1",
+                    "verification_ttl_seconds": 604800,
+                    "mode": "log_only"
+                  },
+                  "evidence": [
+                    {
+                      "id": "evidence-01",
+                      "source_uri": "fixture://acme/team",
+                      "source_kind": "contact_page",
+                      "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+                      "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+                      "captured_at": 1792231200,
+                      "is_fixture": true,
+                      "source_id": "source-acme-team"
+                    }
+                  ],
+                  "verifications": [
+                    {
+                      "id": "verification-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "contact_version": 1,
+                      "status": "passed",
+                      "checked_at": 1792231200,
+                      "valid_until": 1792836000,
+                      "assessment": {
+                        "lead_id": "lead-01",
+                        "recommendation": "passed",
+                        "claims": [
+                          {
+                            "field": "company",
+                            "value": "Acme Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "industry",
+                            "value": "B2B SaaS",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "name",
+                            "value": "Asha Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "role",
+                            "value": "Head of Partnerships",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "email",
+                            "value": "asha@acme.test",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          }
+                        ],
+                        "conflicts": [],
+                        "missing_fields": [],
+                        "summary": "All five claims are supported by the supplied synthetic snapshot."
+                      },
+                      "email_checks": {
+                        "syntax": "pass",
+                        "mx": "fixture",
+                        "mailbox_exists": "unknown",
+                        "checked_at": 1792231200,
+                        "is_fixture": true,
+                        "fixture_result": "present"
+                      },
+                      "model_id": null,
+                      "prompt_version": "checker-v1",
+                      "execution_mode": "fixture_replay",
+                      "reason_codes": []
+                    }
+                  ],
+                  "draft": {
+                    "id": "draft-01",
+                    "lead_id": "lead-01",
+                    "person_id": "person-01",
+                    "campaign_id": "campaign-saas",
+                    "revision": 1,
+                    "to_address": "asha@acme.test",
+                    "from_address": "kunal@leadgraph.test",
+                    "subject": "A partnership conversation with Acme Demo",
+                    "body_text": "Hi Asha,\nWould you be open to a conversation about a SaaS partnership?\nKunal",
+                    "mode": "log_only",
+                    "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                    "created_at": 1792231201
+                  },
+                  "approvals": [
+                    {
+                      "id": "approval-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "verification_id": "verification-01",
+                      "draft_id": "draft-01",
+                      "contact_version": 1,
+                      "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                      "policy_version": "policy-v1",
+                      "approved_by": "kunal",
+                      "approved_at": 1792231202,
+                      "revoked": false
+                    }
+                  ],
+                  "outreach": [],
+                  "events": [
+                    {
+                      "id": "event-approval-01",
+                      "lead_id": "lead-01",
+                      "sequence": 6,
+                      "type": "outreach_approved",
+                      "actor": "kunal",
+                      "at": 1792231202,
+                      "from_state": "Awaiting outreach approval",
+                      "to_state": "Approved for sending",
+                      "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                      "payload": {
+                        "approval_id": "approval-01",
+                        "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              },
+              "example": {
+                "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                "expected_version": 6
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lead_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        ]
+      }
+    },
+    "/api/leads/{lead_id}/draft": {
+      "post": {
+        "operationId": "draft",
+        "summary": "Create a message revision; invalidate previous approval",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadDetail"
+                },
+                "example": {
+                  "lead": {
+                    "id": "lead-01",
+                    "campaign_id": "campaign-saas",
+                    "person_id": "person-01",
+                    "company_name": "Acme Demo",
+                    "person_name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "state": "Approved for sending",
+                    "version": 6,
+                    "duplicate": false,
+                    "duplicate_of_id": null,
+                    "current_verification_id": "verification-01",
+                    "current_draft_id": "draft-01",
+                    "current_approval_id": "approval-01",
+                    "latest_outreach_id": null,
+                    "updated_at": 1792231202,
+                    "execution_mode": "fixture_replay"
+                  },
+                  "company": {
+                    "id": "company-acme",
+                    "name": "Acme Demo",
+                    "domain": "acme.test",
+                    "industry": "B2B SaaS"
+                  },
+                  "person": {
+                    "id": "person-01",
+                    "name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "contact_version": 1,
+                    "opted_out": false,
+                    "suppressed": false
+                  },
+                  "campaign": {
+                    "id": "campaign-saas",
+                    "name": "SaaS partnerships",
+                    "industry": "B2B SaaS",
+                    "target_role": "Head of Partnerships",
+                    "policy_version": "policy-v1",
+                    "verification_ttl_seconds": 604800,
+                    "mode": "log_only"
+                  },
+                  "evidence": [
+                    {
+                      "id": "evidence-01",
+                      "source_uri": "fixture://acme/team",
+                      "source_kind": "contact_page",
+                      "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+                      "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+                      "captured_at": 1792231200,
+                      "is_fixture": true,
+                      "source_id": "source-acme-team"
+                    }
+                  ],
+                  "verifications": [
+                    {
+                      "id": "verification-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "contact_version": 1,
+                      "status": "passed",
+                      "checked_at": 1792231200,
+                      "valid_until": 1792836000,
+                      "assessment": {
+                        "lead_id": "lead-01",
+                        "recommendation": "passed",
+                        "claims": [
+                          {
+                            "field": "company",
+                            "value": "Acme Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "industry",
+                            "value": "B2B SaaS",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "name",
+                            "value": "Asha Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "role",
+                            "value": "Head of Partnerships",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "email",
+                            "value": "asha@acme.test",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          }
+                        ],
+                        "conflicts": [],
+                        "missing_fields": [],
+                        "summary": "All five claims are supported by the supplied synthetic snapshot."
+                      },
+                      "email_checks": {
+                        "syntax": "pass",
+                        "mx": "fixture",
+                        "mailbox_exists": "unknown",
+                        "checked_at": 1792231200,
+                        "is_fixture": true,
+                        "fixture_result": "present"
+                      },
+                      "model_id": null,
+                      "prompt_version": "checker-v1",
+                      "execution_mode": "fixture_replay",
+                      "reason_codes": []
+                    }
+                  ],
+                  "draft": {
+                    "id": "draft-01",
+                    "lead_id": "lead-01",
+                    "person_id": "person-01",
+                    "campaign_id": "campaign-saas",
+                    "revision": 1,
+                    "to_address": "asha@acme.test",
+                    "from_address": "kunal@leadgraph.test",
+                    "subject": "A partnership conversation with Acme Demo",
+                    "body_text": "Hi Asha,\nWould you be open to a conversation about a SaaS partnership?\nKunal",
+                    "mode": "log_only",
+                    "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                    "created_at": 1792231201
+                  },
+                  "approvals": [
+                    {
+                      "id": "approval-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "verification_id": "verification-01",
+                      "draft_id": "draft-01",
+                      "contact_version": 1,
+                      "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                      "policy_version": "policy-v1",
+                      "approved_by": "kunal",
+                      "approved_at": 1792231202,
+                      "revoked": false
+                    }
+                  ],
+                  "outreach": [],
+                  "events": [
+                    {
+                      "id": "event-approval-01",
+                      "lead_id": "lead-01",
+                      "sequence": 6,
+                      "type": "outreach_approved",
+                      "actor": "kunal",
+                      "at": 1792231202,
+                      "from_state": "Awaiting outreach approval",
+                      "to_state": "Approved for sending",
+                      "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                      "payload": {
+                        "approval_id": "approval-01",
+                        "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftRequest"
+              },
+              "example": {
+                "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                "expected_version": 4,
+                "subject": null,
+                "body_text": null
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lead_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        ]
+      }
+    },
+    "/api/leads/{lead_id}/approve": {
+      "post": {
+        "operationId": "approve",
+        "summary": "Human approval of exact message revision",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadDetail"
+                },
+                "example": {
+                  "lead": {
+                    "id": "lead-01",
+                    "campaign_id": "campaign-saas",
+                    "person_id": "person-01",
+                    "company_name": "Acme Demo",
+                    "person_name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "state": "Approved for sending",
+                    "version": 6,
+                    "duplicate": false,
+                    "duplicate_of_id": null,
+                    "current_verification_id": "verification-01",
+                    "current_draft_id": "draft-01",
+                    "current_approval_id": "approval-01",
+                    "latest_outreach_id": null,
+                    "updated_at": 1792231202,
+                    "execution_mode": "fixture_replay"
+                  },
+                  "company": {
+                    "id": "company-acme",
+                    "name": "Acme Demo",
+                    "domain": "acme.test",
+                    "industry": "B2B SaaS"
+                  },
+                  "person": {
+                    "id": "person-01",
+                    "name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "contact_version": 1,
+                    "opted_out": false,
+                    "suppressed": false
+                  },
+                  "campaign": {
+                    "id": "campaign-saas",
+                    "name": "SaaS partnerships",
+                    "industry": "B2B SaaS",
+                    "target_role": "Head of Partnerships",
+                    "policy_version": "policy-v1",
+                    "verification_ttl_seconds": 604800,
+                    "mode": "log_only"
+                  },
+                  "evidence": [
+                    {
+                      "id": "evidence-01",
+                      "source_uri": "fixture://acme/team",
+                      "source_kind": "contact_page",
+                      "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+                      "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+                      "captured_at": 1792231200,
+                      "is_fixture": true,
+                      "source_id": "source-acme-team"
+                    }
+                  ],
+                  "verifications": [
+                    {
+                      "id": "verification-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "contact_version": 1,
+                      "status": "passed",
+                      "checked_at": 1792231200,
+                      "valid_until": 1792836000,
+                      "assessment": {
+                        "lead_id": "lead-01",
+                        "recommendation": "passed",
+                        "claims": [
+                          {
+                            "field": "company",
+                            "value": "Acme Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "industry",
+                            "value": "B2B SaaS",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "name",
+                            "value": "Asha Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "role",
+                            "value": "Head of Partnerships",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "email",
+                            "value": "asha@acme.test",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          }
+                        ],
+                        "conflicts": [],
+                        "missing_fields": [],
+                        "summary": "All five claims are supported by the supplied synthetic snapshot."
+                      },
+                      "email_checks": {
+                        "syntax": "pass",
+                        "mx": "fixture",
+                        "mailbox_exists": "unknown",
+                        "checked_at": 1792231200,
+                        "is_fixture": true,
+                        "fixture_result": "present"
+                      },
+                      "model_id": null,
+                      "prompt_version": "checker-v1",
+                      "execution_mode": "fixture_replay",
+                      "reason_codes": []
+                    }
+                  ],
+                  "draft": {
+                    "id": "draft-01",
+                    "lead_id": "lead-01",
+                    "person_id": "person-01",
+                    "campaign_id": "campaign-saas",
+                    "revision": 1,
+                    "to_address": "asha@acme.test",
+                    "from_address": "kunal@leadgraph.test",
+                    "subject": "A partnership conversation with Acme Demo",
+                    "body_text": "Hi Asha,\nWould you be open to a conversation about a SaaS partnership?\nKunal",
+                    "mode": "log_only",
+                    "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                    "created_at": 1792231201
+                  },
+                  "approvals": [
+                    {
+                      "id": "approval-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "verification_id": "verification-01",
+                      "draft_id": "draft-01",
+                      "contact_version": 1,
+                      "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                      "policy_version": "policy-v1",
+                      "approved_by": "kunal",
+                      "approved_at": 1792231202,
+                      "revoked": false
+                    }
+                  ],
+                  "outreach": [],
+                  "events": [
+                    {
+                      "id": "event-approval-01",
+                      "lead_id": "lead-01",
+                      "sequence": 6,
+                      "type": "outreach_approved",
+                      "actor": "kunal",
+                      "at": 1792231202,
+                      "from_state": "Awaiting outreach approval",
+                      "to_state": "Approved for sending",
+                      "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                      "payload": {
+                        "approval_id": "approval-01",
+                        "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveRequest"
+              },
+              "example": {
+                "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                "expected_version": 5,
+                "draft_id": "draft-01",
+                "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                "actor": "kunal"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lead_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        ]
+      }
+    },
+    "/api/leads/{lead_id}/opt-out": {
+      "post": {
+        "operationId": "optout",
+        "summary": "Opt out canonical person and all related leads",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadDetail"
+                },
+                "example": {
+                  "lead": {
+                    "id": "lead-01",
+                    "campaign_id": "campaign-saas",
+                    "person_id": "person-01",
+                    "company_name": "Acme Demo",
+                    "person_name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "state": "Approved for sending",
+                    "version": 6,
+                    "duplicate": false,
+                    "duplicate_of_id": null,
+                    "current_verification_id": "verification-01",
+                    "current_draft_id": "draft-01",
+                    "current_approval_id": "approval-01",
+                    "latest_outreach_id": null,
+                    "updated_at": 1792231202,
+                    "execution_mode": "fixture_replay"
+                  },
+                  "company": {
+                    "id": "company-acme",
+                    "name": "Acme Demo",
+                    "domain": "acme.test",
+                    "industry": "B2B SaaS"
+                  },
+                  "person": {
+                    "id": "person-01",
+                    "name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "contact_version": 1,
+                    "opted_out": false,
+                    "suppressed": false
+                  },
+                  "campaign": {
+                    "id": "campaign-saas",
+                    "name": "SaaS partnerships",
+                    "industry": "B2B SaaS",
+                    "target_role": "Head of Partnerships",
+                    "policy_version": "policy-v1",
+                    "verification_ttl_seconds": 604800,
+                    "mode": "log_only"
+                  },
+                  "evidence": [
+                    {
+                      "id": "evidence-01",
+                      "source_uri": "fixture://acme/team",
+                      "source_kind": "contact_page",
+                      "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+                      "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+                      "captured_at": 1792231200,
+                      "is_fixture": true,
+                      "source_id": "source-acme-team"
+                    }
+                  ],
+                  "verifications": [
+                    {
+                      "id": "verification-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "contact_version": 1,
+                      "status": "passed",
+                      "checked_at": 1792231200,
+                      "valid_until": 1792836000,
+                      "assessment": {
+                        "lead_id": "lead-01",
+                        "recommendation": "passed",
+                        "claims": [
+                          {
+                            "field": "company",
+                            "value": "Acme Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "industry",
+                            "value": "B2B SaaS",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "name",
+                            "value": "Asha Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "role",
+                            "value": "Head of Partnerships",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "email",
+                            "value": "asha@acme.test",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          }
+                        ],
+                        "conflicts": [],
+                        "missing_fields": [],
+                        "summary": "All five claims are supported by the supplied synthetic snapshot."
+                      },
+                      "email_checks": {
+                        "syntax": "pass",
+                        "mx": "fixture",
+                        "mailbox_exists": "unknown",
+                        "checked_at": 1792231200,
+                        "is_fixture": true,
+                        "fixture_result": "present"
+                      },
+                      "model_id": null,
+                      "prompt_version": "checker-v1",
+                      "execution_mode": "fixture_replay",
+                      "reason_codes": []
+                    }
+                  ],
+                  "draft": {
+                    "id": "draft-01",
+                    "lead_id": "lead-01",
+                    "person_id": "person-01",
+                    "campaign_id": "campaign-saas",
+                    "revision": 1,
+                    "to_address": "asha@acme.test",
+                    "from_address": "kunal@leadgraph.test",
+                    "subject": "A partnership conversation with Acme Demo",
+                    "body_text": "Hi Asha,\nWould you be open to a conversation about a SaaS partnership?\nKunal",
+                    "mode": "log_only",
+                    "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                    "created_at": 1792231201
+                  },
+                  "approvals": [
+                    {
+                      "id": "approval-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "verification_id": "verification-01",
+                      "draft_id": "draft-01",
+                      "contact_version": 1,
+                      "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                      "policy_version": "policy-v1",
+                      "approved_by": "kunal",
+                      "approved_at": 1792231202,
+                      "revoked": false
+                    }
+                  ],
+                  "outreach": [],
+                  "events": [
+                    {
+                      "id": "event-approval-01",
+                      "lead_id": "lead-01",
+                      "sequence": 6,
+                      "type": "outreach_approved",
+                      "actor": "kunal",
+                      "at": 1792231202,
+                      "from_state": "Awaiting outreach approval",
+                      "to_state": "Approved for sending",
+                      "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                      "payload": {
+                        "approval_id": "approval-01",
+                        "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptOutRequest"
+              },
+              "example": {
+                "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                "expected_version": 6,
+                "actor": "shubhangi"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lead_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        ]
+      }
+    },
+    "/api/leads/{lead_id}/gate": {
+      "get": {
+        "operationId": "evaluateSend",
+        "summary": "Advisory preflight; does not authorize sending",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GateDecision"
+                },
+                "example": {
+                  "allowed": true,
+                  "reason_codes": [],
+                  "lead_id": "lead-01",
+                  "lead_version": 6,
+                  "verification_id": "verification-01",
+                  "approval_id": "approval-01",
+                  "draft_id": "draft-01",
+                  "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                  "checked_at": 1792231203,
+                  "prior_outreach_ids": []
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lead_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        ]
+      }
+    },
+    "/api/leads/{lead_id}/send": {
+      "post": {
+        "operationId": "sendApproved",
+        "summary": "Recheck gate and atomically record simulated send",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendReceipt"
+                },
+                "example": {
+                  "outreach_id": "outreach-01",
+                  "lead_id": "lead-01",
+                  "lead_version": 7,
+                  "status": "sent",
+                  "mode": "log_only",
+                  "reason_codes": [],
+                  "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                  "recorded_at": 1792231203,
+                  "simulated": true
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              },
+              "example": {
+                "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                "expected_version": 6
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lead_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        ]
+      }
+    },
+    "/api/rechecks/scan": {
+      "post": {
+        "operationId": "scanStale",
+        "summary": "Flag expired active verifications",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScanResponse"
+                },
+                "example": {
+                  "checked_at": 1792231200,
+                  "updated": []
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScanRequest"
+              },
+              "example": {
+                "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                "campaign_id": "campaign-saas"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/outreach/{outreach_id}/why": {
+      "get": {
+        "operationId": "explain",
+        "summary": "Historical evidence chain for exact outreach",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplanationGraph"
+                },
+                "example": {
+                  "outreach_id": "outreach-01",
+                  "complete": true,
+                  "nodes": [
+                    {
+                      "data": {
+                        "id": "company-acme",
+                        "label": "Acme Demo",
+                        "type": "Company",
+                        "properties": {
+                          "id": "company-acme",
+                          "name": "Acme Demo",
+                          "domain": "acme.test",
+                          "industry": "B2B SaaS"
+                        }
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "person-01",
+                        "label": "Asha Demo",
+                        "type": "Person",
+                        "properties": {
+                          "id": "person-01",
+                          "name": "Asha Demo",
+                          "role": "Head of Partnerships",
+                          "email_normalized": "asha@acme.test",
+                          "contact_version": 1,
+                          "opted_out": false,
+                          "suppressed": false
+                        }
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "verification-01",
+                        "label": "Evidence verified",
+                        "type": "Verification",
+                        "properties": {
+                          "id": "verification-01",
+                          "lead_id": "lead-01",
+                          "person_id": "person-01",
+                          "campaign_id": "campaign-saas",
+                          "contact_version": 1,
+                          "status": "passed",
+                          "checked_at": 1792231200,
+                          "valid_until": 1792836000,
+                          "assessment": {
+                            "lead_id": "lead-01",
+                            "recommendation": "passed",
+                            "claims": [
+                              {
+                                "field": "company",
+                                "value": "Acme Demo",
+                                "result": "supported",
+                                "evidence_ids": [
+                                  "evidence-01"
+                                ],
+                                "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                              },
+                              {
+                                "field": "industry",
+                                "value": "B2B SaaS",
+                                "result": "supported",
+                                "evidence_ids": [
+                                  "evidence-01"
+                                ],
+                                "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                              },
+                              {
+                                "field": "name",
+                                "value": "Asha Demo",
+                                "result": "supported",
+                                "evidence_ids": [
+                                  "evidence-01"
+                                ],
+                                "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                              },
+                              {
+                                "field": "role",
+                                "value": "Head of Partnerships",
+                                "result": "supported",
+                                "evidence_ids": [
+                                  "evidence-01"
+                                ],
+                                "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                              },
+                              {
+                                "field": "email",
+                                "value": "asha@acme.test",
+                                "result": "supported",
+                                "evidence_ids": [
+                                  "evidence-01"
+                                ],
+                                "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                              }
+                            ],
+                            "conflicts": [],
+                            "missing_fields": [],
+                            "summary": "All five claims are supported by the supplied synthetic snapshot."
+                          },
+                          "email_checks": {
+                            "syntax": "pass",
+                            "mx": "fixture",
+                            "mailbox_exists": "unknown",
+                            "checked_at": 1792231200,
+                            "is_fixture": true,
+                            "fixture_result": "present"
+                          },
+                          "model_id": null,
+                          "prompt_version": "checker-v1",
+                          "execution_mode": "fixture_replay",
+                          "reason_codes": []
+                        }
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "campaign-saas",
+                        "label": "SaaS partnerships",
+                        "type": "Campaign",
+                        "properties": {
+                          "id": "campaign-saas",
+                          "name": "SaaS partnerships",
+                          "industry": "B2B SaaS",
+                          "target_role": "Head of Partnerships",
+                          "policy_version": "policy-v1",
+                          "verification_ttl_seconds": 604800,
+                          "mode": "log_only"
+                        }
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "approval-01",
+                        "label": "Approved by Kunal",
+                        "type": "Approval",
+                        "properties": {
+                          "id": "approval-01",
+                          "lead_id": "lead-01",
+                          "person_id": "person-01",
+                          "campaign_id": "campaign-saas",
+                          "verification_id": "verification-01",
+                          "draft_id": "draft-01",
+                          "contact_version": 1,
+                          "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                          "policy_version": "policy-v1",
+                          "approved_by": "kunal",
+                          "approved_at": 1792231202,
+                          "revoked": false
+                        }
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "draft-01",
+                        "label": "A partnership conversation with Acme Demo",
+                        "type": "Draft",
+                        "properties": {
+                          "id": "draft-01",
+                          "lead_id": "lead-01",
+                          "person_id": "person-01",
+                          "campaign_id": "campaign-saas",
+                          "revision": 1,
+                          "to_address": "asha@acme.test",
+                          "from_address": "kunal@leadgraph.test",
+                          "subject": "A partnership conversation with Acme Demo",
+                          "body_text": "Hi Asha,\nWould you be open to a conversation about a SaaS partnership?\nKunal",
+                          "mode": "log_only",
+                          "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                          "created_at": 1792231201
+                        }
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "outreach-01",
+                        "label": "Sent — simulated",
+                        "type": "Outreach",
+                        "properties": {
+                          "id": "outreach-01",
+                          "lead_id": "lead-01",
+                          "lead_version": 7,
+                          "status": "sent",
+                          "mode": "log_only",
+                          "reason_codes": [],
+                          "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                          "recorded_at": 1792231203,
+                          "simulated": true
+                        }
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "evidence-01",
+                        "label": "Synthetic contact page",
+                        "type": "Evidence",
+                        "properties": {
+                          "id": "evidence-01",
+                          "source_uri": "fixture://acme/team",
+                          "source_kind": "contact_page",
+                          "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+                          "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+                          "captured_at": 1792231200,
+                          "is_fixture": true,
+                          "source_id": "source-acme-team"
+                        }
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "event-approval-01",
+                        "label": "Human approval recorded",
+                        "type": "Event",
+                        "properties": {
+                          "id": "event-approval-01",
+                          "lead_id": "lead-01",
+                          "sequence": 6,
+                          "type": "outreach_approved",
+                          "actor": "kunal",
+                          "at": 1792231202,
+                          "from_state": "Awaiting outreach approval",
+                          "to_state": "Approved for sending",
+                          "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                          "payload": {
+                            "approval_id": "approval-01",
+                            "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "edges": [
+                    {
+                      "data": {
+                        "id": "edge-01",
+                        "source": "company-acme",
+                        "target": "person-01",
+                        "label": "HAS_CONTACT"
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "edge-02",
+                        "source": "person-01",
+                        "target": "verification-01",
+                        "label": "VERIFIED_BY"
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "edge-03",
+                        "source": "verification-01",
+                        "target": "campaign-saas",
+                        "label": "QUALIFIED_FOR"
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "edge-04",
+                        "source": "campaign-saas",
+                        "target": "approval-01",
+                        "label": "AUTHORIZED_BY"
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "edge-05",
+                        "source": "approval-01",
+                        "target": "outreach-01",
+                        "label": "SENT_AS"
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "edge-06",
+                        "source": "approval-01",
+                        "target": "verification-01",
+                        "label": "BASED_ON"
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "edge-07",
+                        "source": "approval-01",
+                        "target": "draft-01",
+                        "label": "APPROVES"
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "edge-08",
+                        "source": "outreach-01",
+                        "target": "draft-01",
+                        "label": "USES_DRAFT"
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "edge-09",
+                        "source": "verification-01",
+                        "target": "evidence-01",
+                        "label": "SUPPORTED_BY"
+                      }
+                    },
+                    {
+                      "data": {
+                        "id": "edge-10",
+                        "source": "approval-01",
+                        "target": "event-approval-01",
+                        "label": "HAS_EVENT"
+                      }
+                    }
+                  ],
+                  "events": [
+                    {
+                      "id": "event-approval-01",
+                      "lead_id": "lead-01",
+                      "sequence": 6,
+                      "type": "outreach_approved",
+                      "actor": "kunal",
+                      "at": 1792231202,
+                      "from_state": "Awaiting outreach approval",
+                      "to_state": "Approved for sending",
+                      "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                      "payload": {
+                        "approval_id": "approval-01",
+                        "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+                      }
+                    }
+                  ],
+                  "summary": "Synthetic evidence and human approval authorized a log-only send."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "outreach_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        ]
+      }
+    },
+    "/api/outreach/{outreach_id}/outcome": {
+      "post": {
+        "operationId": "recordOutcome",
+        "summary": "Record simulated delivery or reply outcome",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadDetail"
+                },
+                "example": {
+                  "lead": {
+                    "id": "lead-01",
+                    "campaign_id": "campaign-saas",
+                    "person_id": "person-01",
+                    "company_name": "Acme Demo",
+                    "person_name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "state": "Approved for sending",
+                    "version": 6,
+                    "duplicate": false,
+                    "duplicate_of_id": null,
+                    "current_verification_id": "verification-01",
+                    "current_draft_id": "draft-01",
+                    "current_approval_id": "approval-01",
+                    "latest_outreach_id": null,
+                    "updated_at": 1792231202,
+                    "execution_mode": "fixture_replay"
+                  },
+                  "company": {
+                    "id": "company-acme",
+                    "name": "Acme Demo",
+                    "domain": "acme.test",
+                    "industry": "B2B SaaS"
+                  },
+                  "person": {
+                    "id": "person-01",
+                    "name": "Asha Demo",
+                    "role": "Head of Partnerships",
+                    "email_normalized": "asha@acme.test",
+                    "contact_version": 1,
+                    "opted_out": false,
+                    "suppressed": false
+                  },
+                  "campaign": {
+                    "id": "campaign-saas",
+                    "name": "SaaS partnerships",
+                    "industry": "B2B SaaS",
+                    "target_role": "Head of Partnerships",
+                    "policy_version": "policy-v1",
+                    "verification_ttl_seconds": 604800,
+                    "mode": "log_only"
+                  },
+                  "evidence": [
+                    {
+                      "id": "evidence-01",
+                      "source_uri": "fixture://acme/team",
+                      "source_kind": "contact_page",
+                      "snapshot_text": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test.",
+                      "content_hash": "85b73ea87e99d1f9d4e3f2d82f96161ebb9b0c1e506fccb1324ffe427d8a7805",
+                      "captured_at": 1792231200,
+                      "is_fixture": true,
+                      "source_id": "source-acme-team"
+                    }
+                  ],
+                  "verifications": [
+                    {
+                      "id": "verification-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "contact_version": 1,
+                      "status": "passed",
+                      "checked_at": 1792231200,
+                      "valid_until": 1792836000,
+                      "assessment": {
+                        "lead_id": "lead-01",
+                        "recommendation": "passed",
+                        "claims": [
+                          {
+                            "field": "company",
+                            "value": "Acme Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "industry",
+                            "value": "B2B SaaS",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "name",
+                            "value": "Asha Demo",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "role",
+                            "value": "Head of Partnerships",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          },
+                          {
+                            "field": "email",
+                            "value": "asha@acme.test",
+                            "result": "supported",
+                            "evidence_ids": [
+                              "evidence-01"
+                            ],
+                            "quote": "Acme Demo is a B2B SaaS company. Asha Demo is Head of Partnerships. Email: asha@acme.test."
+                          }
+                        ],
+                        "conflicts": [],
+                        "missing_fields": [],
+                        "summary": "All five claims are supported by the supplied synthetic snapshot."
+                      },
+                      "email_checks": {
+                        "syntax": "pass",
+                        "mx": "fixture",
+                        "mailbox_exists": "unknown",
+                        "checked_at": 1792231200,
+                        "is_fixture": true,
+                        "fixture_result": "present"
+                      },
+                      "model_id": null,
+                      "prompt_version": "checker-v1",
+                      "execution_mode": "fixture_replay",
+                      "reason_codes": []
+                    }
+                  ],
+                  "draft": {
+                    "id": "draft-01",
+                    "lead_id": "lead-01",
+                    "person_id": "person-01",
+                    "campaign_id": "campaign-saas",
+                    "revision": 1,
+                    "to_address": "asha@acme.test",
+                    "from_address": "kunal@leadgraph.test",
+                    "subject": "A partnership conversation with Acme Demo",
+                    "body_text": "Hi Asha,\nWould you be open to a conversation about a SaaS partnership?\nKunal",
+                    "mode": "log_only",
+                    "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                    "created_at": 1792231201
+                  },
+                  "approvals": [
+                    {
+                      "id": "approval-01",
+                      "lead_id": "lead-01",
+                      "person_id": "person-01",
+                      "campaign_id": "campaign-saas",
+                      "verification_id": "verification-01",
+                      "draft_id": "draft-01",
+                      "contact_version": 1,
+                      "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612",
+                      "policy_version": "policy-v1",
+                      "approved_by": "kunal",
+                      "approved_at": 1792231202,
+                      "revoked": false
+                    }
+                  ],
+                  "outreach": [],
+                  "events": [
+                    {
+                      "id": "event-approval-01",
+                      "lead_id": "lead-01",
+                      "sequence": 6,
+                      "type": "outreach_approved",
+                      "actor": "kunal",
+                      "at": 1792231202,
+                      "from_state": "Awaiting outreach approval",
+                      "to_state": "Approved for sending",
+                      "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                      "payload": {
+                        "approval_id": "approval-01",
+                        "message_hash": "49f9fe6d2f0ca7d8aff48a9168a5cc35725f17ce67c658b21f26b9ecb6617612"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict or blocked send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutcomeRequest"
+              },
+              "example": {
+                "command_id": "18e0c2c5-1099-48d3-a741-0b6a47308301",
+                "expected_version": 7,
+                "actor": "shubhangi",
+                "outcome": "replied"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "outreach_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LeadState": {
+        "type": "string",
+        "enum": [
+          "Discovered",
+          "Verification pending",
+          "Approved",
+          "Needs review",
+          "Rejected",
+          "Stale",
+          "Awaiting outreach approval",
+          "Approved for sending",
+          "Sent",
+          "Delivery/Reply status",
+          "Opted out"
+        ]
+      },
+      "ReasonCode": {
+        "type": "string",
+        "enum": [
+          "WRONG_STATE",
+          "VERIFICATION_INVALID",
+          "OPTED_OUT",
+          "SUPPRESSED",
+          "DUPLICATE",
+          "ALREADY_CONTACTED",
+          "DRAFT_MISSING",
+          "APPROVAL_INVALID",
+          "MESSAGE_CHANGED",
+          "GRAPH_UNAVAILABLE",
+          "AUDIT_INCONSISTENT"
+        ]
+      },
+      "Field": {
+        "type": "string",
+        "enum": [
+          "company",
+          "industry",
+          "name",
+          "role",
+          "email"
+        ]
+      },
+      "ExecutionMode": {
+        "type": "string",
+        "enum": [
+          "live_llm",
+          "fixture_replay"
+        ]
+      },
+      "Actor": {
+        "type": "string",
+        "enum": [
+          "kunal",
+          "shubhangi"
+        ]
+      },
+      "CompanyInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "domain",
+          "industry"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "domain": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "industry": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        }
+      },
+      "ContactInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "role",
+          "email"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "email": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        }
+      },
+      "EvidenceCitation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "field",
+          "quote"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "field": {
+            "$ref": "#/components/schemas/Field"
+          },
+          "quote": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        }
+      },
+      "LeadCandidate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_record_id",
+          "campaign_id",
+          "company",
+          "person",
+          "evidence"
+        ],
+        "properties": {
+          "source_record_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "campaign_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "company": {
+            "$ref": "#/components/schemas/CompanyInput"
+          },
+          "person": {
+            "$ref": "#/components/schemas/ContactInput"
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/EvidenceCitation"
+            }
+          }
+        }
+      },
+      "ExtractorInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "campaign_id",
+          "sources",
+          "campaign"
+        ],
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            }
+          },
+          "campaign": {
+            "$ref": "#/components/schemas/Campaign"
+          }
+        }
+      },
+      "ExtractionBatch": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "execution_mode",
+          "model_id",
+          "prompt_version",
+          "candidates"
+        ],
+        "properties": {
+          "execution_mode": {
+            "$ref": "#/components/schemas/ExecutionMode"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prompt_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeadCandidate"
+            }
+          }
+        }
+      },
+      "Source": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "source_record_id",
+          "source_uri",
+          "source_kind",
+          "snapshot_text",
+          "content_hash",
+          "captured_at",
+          "is_fixture"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "source_record_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "source_uri": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "company_page",
+              "contact_page",
+              "campaign_brief"
+            ]
+          },
+          "snapshot_text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "captured_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "is_fixture": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Evidence": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "source_id",
+          "source_uri",
+          "source_kind",
+          "snapshot_text",
+          "content_hash",
+          "captured_at",
+          "is_fixture"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "source_uri": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "company_page",
+              "contact_page",
+              "campaign_brief"
+            ]
+          },
+          "snapshot_text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "captured_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "is_fixture": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Campaign": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "industry",
+          "target_role",
+          "policy_version",
+          "verification_ttl_seconds",
+          "mode"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "industry": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "target_role": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "verification_ttl_seconds": {
+            "const": 604800
+          },
+          "mode": {
+            "const": "log_only"
+          }
+        }
+      },
+      "Company": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "domain",
+          "industry"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "domain": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "industry": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        }
+      },
+      "Person": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "role",
+          "email_normalized",
+          "contact_version",
+          "opted_out",
+          "suppressed"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "email_normalized": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "contact_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "opted_out": {
+            "type": "boolean"
+          },
+          "suppressed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EmailChecks": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "syntax",
+          "mx",
+          "mailbox_exists",
+          "checked_at",
+          "is_fixture",
+          "fixture_result"
+        ],
+        "properties": {
+          "syntax": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "fail"
+            ]
+          },
+          "mx": {
+            "type": "string",
+            "enum": [
+              "present",
+              "absent",
+              "null_mx",
+              "nxdomain",
+              "timeout",
+              "fixture"
+            ]
+          },
+          "mailbox_exists": {
+            "const": "unknown"
+          },
+          "checked_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "is_fixture": {
+            "type": "boolean"
+          },
+          "fixture_result": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "present",
+                  "absent",
+                  "null_mx",
+                  "nxdomain",
+                  "timeout"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "Claim": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "field",
+          "value",
+          "result",
+          "evidence_ids",
+          "quote"
+        ],
+        "properties": {
+          "field": {
+            "$ref": "#/components/schemas/Field"
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "supported",
+              "contradicted",
+              "unknown"
+            ]
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          },
+          "quote": {
+            "type": "string"
+          }
+        }
+      },
+      "CheckerAssessment": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "lead_id",
+          "recommendation",
+          "claims",
+          "conflicts",
+          "missing_fields",
+          "summary"
+        ],
+        "properties": {
+          "lead_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "recommendation": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "needs_review",
+              "rejected"
+            ]
+          },
+          "claims": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            }
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            }
+          },
+          "missing_fields": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/Field"
+            }
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        }
+      },
+      "VerificationReport": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "lead_id",
+          "person_id",
+          "campaign_id",
+          "contact_version",
+          "status",
+          "checked_at",
+          "valid_until",
+          "assessment",
+          "email_checks",
+          "model_id",
+          "prompt_version",
+          "execution_mode",
+          "reason_codes"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "lead_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "person_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "campaign_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "contact_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "needs_review",
+              "rejected"
+            ]
+          },
+          "checked_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "valid_until": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "assessment": {
+            "$ref": "#/components/schemas/CheckerAssessment"
+          },
+          "email_checks": {
+            "$ref": "#/components/schemas/EmailChecks"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prompt_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "execution_mode": {
+            "$ref": "#/components/schemas/ExecutionMode"
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            }
+          }
+        }
+      },
+      "Draft": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "lead_id",
+          "person_id",
+          "campaign_id",
+          "revision",
+          "to_address",
+          "from_address",
+          "subject",
+          "body_text",
+          "mode",
+          "message_hash",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "lead_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "person_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "campaign_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "to_address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "from_address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "body_text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "mode": {
+            "const": "log_only"
+          },
+          "message_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "created_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          }
+        }
+      },
+      "Approval": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "lead_id",
+          "person_id",
+          "campaign_id",
+          "verification_id",
+          "draft_id",
+          "contact_version",
+          "message_hash",
+          "policy_version",
+          "approved_by",
+          "approved_at",
+          "revoked"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "lead_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "person_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "campaign_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "verification_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "draft_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "contact_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "message_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "approved_by": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "approved_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "revoked": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LeadSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "campaign_id",
+          "person_id",
+          "company_name",
+          "person_name",
+          "role",
+          "email_normalized",
+          "state",
+          "version",
+          "duplicate",
+          "duplicate_of_id",
+          "current_verification_id",
+          "current_draft_id",
+          "current_approval_id",
+          "latest_outreach_id",
+          "updated_at",
+          "execution_mode"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "campaign_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "person_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "company_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "person_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "email_normalized": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "state": {
+            "$ref": "#/components/schemas/LeadState"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "duplicate": {
+            "type": "boolean"
+          },
+          "duplicate_of_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_verification_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_draft_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_approval_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latest_outreach_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "updated_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "execution_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExecutionMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "lead_id",
+          "sequence",
+          "type",
+          "actor",
+          "at",
+          "from_state",
+          "to_state",
+          "command_id",
+          "payload"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "lead_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "actor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "from_state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LeadState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "to_state": {
+            "$ref": "#/components/schemas/LeadState"
+          },
+          "command_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "payload": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "Outreach": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "lead_id",
+          "person_id",
+          "campaign_id",
+          "approval_id",
+          "draft_id",
+          "message_hash",
+          "mode",
+          "status",
+          "idempotency_key",
+          "sent_at",
+          "outcome",
+          "simulated"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "lead_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "person_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "campaign_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "approval_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "draft_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "message_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "mode": {
+            "const": "log_only"
+          },
+          "status": {
+            "const": "sent"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sent_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "delivered",
+                  "replied",
+                  "bounced"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "simulated": {
+            "const": true
+          }
+        }
+      },
+      "LeadDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "lead",
+          "company",
+          "person",
+          "campaign",
+          "evidence",
+          "verifications",
+          "draft",
+          "approvals",
+          "outreach",
+          "events"
+        ],
+        "properties": {
+          "lead": {
+            "$ref": "#/components/schemas/LeadSummary"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "person": {
+            "$ref": "#/components/schemas/Person"
+          },
+          "campaign": {
+            "$ref": "#/components/schemas/Campaign"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            }
+          },
+          "verifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerificationReport"
+            }
+          },
+          "draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Draft"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approvals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Approval"
+            }
+          },
+          "outreach": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Outreach"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          }
+        }
+      },
+      "LeadList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "total"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeadSummary"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "CheckContext": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "lead",
+          "company",
+          "person",
+          "campaign",
+          "evidence",
+          "previous_reports",
+          "history",
+          "email_checks"
+        ],
+        "properties": {
+          "lead": {
+            "$ref": "#/components/schemas/LeadSummary"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "person": {
+            "$ref": "#/components/schemas/Person"
+          },
+          "campaign": {
+            "$ref": "#/components/schemas/Campaign"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            }
+          },
+          "previous_reports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerificationReport"
+            }
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "email_checks": {
+            "$ref": "#/components/schemas/EmailChecks"
+          }
+        }
+      },
+      "GateDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "allowed",
+          "reason_codes",
+          "lead_id",
+          "lead_version",
+          "verification_id",
+          "approval_id",
+          "draft_id",
+          "message_hash",
+          "checked_at",
+          "prior_outreach_ids"
+        ],
+        "properties": {
+          "allowed": {
+            "type": "boolean"
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReasonCode"
+            }
+          },
+          "lead_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "lead_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "verification_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approval_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "draft_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message_hash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "checked_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "prior_outreach_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        }
+      },
+      "SendReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outreach_id",
+          "lead_id",
+          "lead_version",
+          "status",
+          "mode",
+          "reason_codes",
+          "message_hash",
+          "recorded_at",
+          "simulated"
+        ],
+        "properties": {
+          "outreach_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "lead_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "lead_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "const": "sent"
+          },
+          "mode": {
+            "const": "log_only"
+          },
+          "reason_codes": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "message_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "recorded_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "simulated": {
+            "const": true
+          }
+        }
+      },
+      "GraphNodeData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "type",
+          "properties"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Company",
+              "Person",
+              "Lead",
+              "Verification",
+              "Campaign",
+              "Approval",
+              "Draft",
+              "Outreach",
+              "Evidence",
+              "Event"
+            ]
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "GraphEdgeData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "source",
+          "target",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          }
+        }
+      },
+      "GraphNode": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/GraphNodeData"
+          }
+        }
+      },
+      "GraphEdge": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/GraphEdgeData"
+          }
+        }
+      },
+      "ExplanationGraph": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outreach_id",
+          "complete",
+          "nodes",
+          "edges",
+          "events",
+          "summary"
+        ],
+        "properties": {
+          "outreach_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        }
+      },
+      "IngestResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_record_id",
+          "lead_id",
+          "person_id",
+          "outcome",
+          "canonical_lead_id",
+          "state",
+          "version"
+        ],
+        "properties": {
+          "source_record_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "lead_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "person_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "inserted",
+              "duplicate",
+              "needs_review",
+              "existing"
+            ]
+          },
+          "canonical_lead_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "$ref": "#/components/schemas/LeadState"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "ExtractRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command_id",
+          "campaign_id",
+          "source_ids"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "campaign_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "source_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            }
+          }
+        }
+      },
+      "ExtractResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "execution_mode",
+          "model_id",
+          "prompt_version",
+          "items"
+        ],
+        "properties": {
+          "execution_mode": {
+            "$ref": "#/components/schemas/ExecutionMode"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prompt_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IngestResult"
+            }
+          }
+        }
+      },
+      "MutationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command_id",
+          "expected_version"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "DraftRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command_id",
+          "expected_version",
+          "subject",
+          "body_text"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "body_text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ApproveRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command_id",
+          "expected_version",
+          "draft_id",
+          "message_hash",
+          "actor"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "draft_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "message_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        }
+      },
+      "OptOutRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command_id",
+          "expected_version",
+          "actor"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        }
+      },
+      "ScanRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command_id",
+          "campaign_id"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "campaign_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          }
+        }
+      },
+      "ScanResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "checked_at",
+          "updated"
+        ],
+        "properties": {
+          "checked_at": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "UTC Unix seconds, never milliseconds."
+          },
+          "updated": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeadSummary"
+            }
+          }
+        }
+      },
+      "OutcomeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command_id",
+          "expected_version",
+          "actor",
+          "outcome"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "delivered",
+              "replied",
+              "bounced"
+            ]
+          }
+        }
+      },
+      "SendEnvelope": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outreach_id",
+          "lead_id",
+          "approval_id",
+          "verification_id",
+          "draft",
+          "idempotency_key",
+          "gate_decision"
+        ],
+        "properties": {
+          "outreach_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "lead_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "approval_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "verification_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/Draft"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "gate_decision": {
+            "$ref": "#/components/schemas/GateDecision"
+          }
+        }
+      },
+      "SenderResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outreach_id",
+          "status",
+          "mode",
+          "message_hash",
+          "simulated"
+        ],
+        "properties": {
+          "outreach_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          },
+          "status": {
+            "const": "logged"
+          },
+          "mode": {
+            "const": "log_only"
+          },
+          "message_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "simulated": {
+            "const": true
+          }
+        }
+      },
+      "ErrorBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "message",
+          "details"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "VERSION_CONFLICT",
+              "INVALID_STATE",
+              "COMMAND_REUSED",
+              "COMMAND_IN_PROGRESS",
+              "SEND_BLOCKED",
+              "INVALID_INPUT",
+              "NOT_FOUND",
+              "DEPENDENCY_UNAVAILABLE",
+              "ASSESSMENT_INVALID",
+              "INTERNAL_ERROR"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        }
+      },
+      "SourceList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            }
+          }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "graph",
+          "execution_mode",
+          "model_id",
+          "sender_mode"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degraded"
+            ]
+          },
+          "graph": {
+            "type": "string",
+            "enum": [
+              "connected",
+              "unavailable"
+            ]
+          },
+          "execution_mode": {
+            "$ref": "#/components/schemas/ExecutionMode"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sender_mode": {
+            "const": "log_only"
+          }
+        }
+      }
+    }
+  }
+}

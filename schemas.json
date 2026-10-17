@@ -1,0 +1,2176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "LeadState": {
+      "type": "string",
+      "enum": [
+        "Discovered",
+        "Verification pending",
+        "Approved",
+        "Needs review",
+        "Rejected",
+        "Stale",
+        "Awaiting outreach approval",
+        "Approved for sending",
+        "Sent",
+        "Delivery/Reply status",
+        "Opted out"
+      ]
+    },
+    "ReasonCode": {
+      "type": "string",
+      "enum": [
+        "WRONG_STATE",
+        "VERIFICATION_INVALID",
+        "OPTED_OUT",
+        "SUPPRESSED",
+        "DUPLICATE",
+        "ALREADY_CONTACTED",
+        "DRAFT_MISSING",
+        "APPROVAL_INVALID",
+        "MESSAGE_CHANGED",
+        "GRAPH_UNAVAILABLE",
+        "AUDIT_INCONSISTENT"
+      ]
+    },
+    "Field": {
+      "type": "string",
+      "enum": [
+        "company",
+        "industry",
+        "name",
+        "role",
+        "email"
+      ]
+    },
+    "ExecutionMode": {
+      "type": "string",
+      "enum": [
+        "live_llm",
+        "fixture_replay"
+      ]
+    },
+    "Actor": {
+      "type": "string",
+      "enum": [
+        "kunal",
+        "shubhangi"
+      ]
+    },
+    "CompanyInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "domain",
+        "industry"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "industry": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        }
+      }
+    },
+    "ContactInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "role",
+        "email"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        }
+      }
+    },
+    "EvidenceCitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "field",
+        "quote"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "field": {
+          "$ref": "#/$defs/Field"
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        }
+      }
+    },
+    "LeadCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_record_id",
+        "campaign_id",
+        "company",
+        "person",
+        "evidence"
+      ],
+      "properties": {
+        "source_record_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "campaign_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "company": {
+          "$ref": "#/$defs/CompanyInput"
+        },
+        "person": {
+          "$ref": "#/$defs/ContactInput"
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/EvidenceCitation"
+          }
+        }
+      }
+    },
+    "ExtractorInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "campaign_id",
+        "sources",
+        "campaign"
+      ],
+      "properties": {
+        "campaign_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Source"
+          }
+        },
+        "campaign": {
+          "$ref": "#/$defs/Campaign"
+        }
+      }
+    },
+    "ExtractionBatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "execution_mode",
+        "model_id",
+        "prompt_version",
+        "candidates"
+      ],
+      "properties": {
+        "execution_mode": {
+          "$ref": "#/$defs/ExecutionMode"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prompt_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LeadCandidate"
+          }
+        }
+      }
+    },
+    "Source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_record_id",
+        "source_uri",
+        "source_kind",
+        "snapshot_text",
+        "content_hash",
+        "captured_at",
+        "is_fixture"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "source_record_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "source_uri": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "source_kind": {
+          "type": "string",
+          "enum": [
+            "company_page",
+            "contact_page",
+            "campaign_brief"
+          ]
+        },
+        "snapshot_text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "captured_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "is_fixture": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "source_uri",
+        "source_kind",
+        "snapshot_text",
+        "content_hash",
+        "captured_at",
+        "is_fixture"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "source_uri": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "source_kind": {
+          "type": "string",
+          "enum": [
+            "company_page",
+            "contact_page",
+            "campaign_brief"
+          ]
+        },
+        "snapshot_text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "captured_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "is_fixture": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Campaign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "industry",
+        "target_role",
+        "policy_version",
+        "verification_ttl_seconds",
+        "mode"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "industry": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "target_role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "policy_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "verification_ttl_seconds": {
+          "const": 604800
+        },
+        "mode": {
+          "const": "log_only"
+        }
+      }
+    },
+    "Company": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "domain",
+        "industry"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "industry": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        }
+      }
+    },
+    "Person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "role",
+        "email_normalized",
+        "contact_version",
+        "opted_out",
+        "suppressed"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "email_normalized": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "contact_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "opted_out": {
+          "type": "boolean"
+        },
+        "suppressed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "EmailChecks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "syntax",
+        "mx",
+        "mailbox_exists",
+        "checked_at",
+        "is_fixture",
+        "fixture_result"
+      ],
+      "properties": {
+        "syntax": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "fail"
+          ]
+        },
+        "mx": {
+          "type": "string",
+          "enum": [
+            "present",
+            "absent",
+            "null_mx",
+            "nxdomain",
+            "timeout",
+            "fixture"
+          ]
+        },
+        "mailbox_exists": {
+          "const": "unknown"
+        },
+        "checked_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "is_fixture": {
+          "type": "boolean"
+        },
+        "fixture_result": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "present",
+                "absent",
+                "null_mx",
+                "nxdomain",
+                "timeout"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "Claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field",
+        "value",
+        "result",
+        "evidence_ids",
+        "quote"
+      ],
+      "properties": {
+        "field": {
+          "$ref": "#/$defs/Field"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "supported",
+            "contradicted",
+            "unknown"
+          ]
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          }
+        },
+        "quote": {
+          "type": "string"
+        }
+      }
+    },
+    "CheckerAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lead_id",
+        "recommendation",
+        "claims",
+        "conflicts",
+        "missing_fields",
+        "summary"
+      ],
+      "properties": {
+        "lead_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "recommendation": {
+          "type": "string",
+          "enum": [
+            "passed",
+            "needs_review",
+            "rejected"
+          ]
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Claim"
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        },
+        "missing_fields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/Field"
+          }
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        }
+      }
+    },
+    "VerificationReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "lead_id",
+        "person_id",
+        "campaign_id",
+        "contact_version",
+        "status",
+        "checked_at",
+        "valid_until",
+        "assessment",
+        "email_checks",
+        "model_id",
+        "prompt_version",
+        "execution_mode",
+        "reason_codes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lead_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "person_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "campaign_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "contact_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "passed",
+            "needs_review",
+            "rejected"
+          ]
+        },
+        "checked_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "valid_until": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "assessment": {
+          "$ref": "#/$defs/CheckerAssessment"
+        },
+        "email_checks": {
+          "$ref": "#/$defs/EmailChecks"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prompt_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "execution_mode": {
+          "$ref": "#/$defs/ExecutionMode"
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        }
+      }
+    },
+    "Draft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "lead_id",
+        "person_id",
+        "campaign_id",
+        "revision",
+        "to_address",
+        "from_address",
+        "subject",
+        "body_text",
+        "mode",
+        "message_hash",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lead_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "person_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "campaign_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "to_address": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "from_address": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "body_text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "mode": {
+          "const": "log_only"
+        },
+        "message_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "created_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        }
+      }
+    },
+    "Approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "lead_id",
+        "person_id",
+        "campaign_id",
+        "verification_id",
+        "draft_id",
+        "contact_version",
+        "message_hash",
+        "policy_version",
+        "approved_by",
+        "approved_at",
+        "revoked"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lead_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "person_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "campaign_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "verification_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "draft_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "contact_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "message_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "policy_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "approved_by": {
+          "$ref": "#/$defs/Actor"
+        },
+        "approved_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "revoked": {
+          "type": "boolean"
+        }
+      }
+    },
+    "LeadSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "campaign_id",
+        "person_id",
+        "company_name",
+        "person_name",
+        "role",
+        "email_normalized",
+        "state",
+        "version",
+        "duplicate",
+        "duplicate_of_id",
+        "current_verification_id",
+        "current_draft_id",
+        "current_approval_id",
+        "latest_outreach_id",
+        "updated_at",
+        "execution_mode"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "campaign_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "person_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "company_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "person_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "email_normalized": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "state": {
+          "$ref": "#/$defs/LeadState"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "duplicate": {
+          "type": "boolean"
+        },
+        "duplicate_of_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "current_verification_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "current_draft_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "current_approval_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "latest_outreach_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updated_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "execution_mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExecutionMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "lead_id",
+        "sequence",
+        "type",
+        "actor",
+        "at",
+        "from_state",
+        "to_state",
+        "command_id",
+        "payload"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lead_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "from_state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LeadState"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "to_state": {
+          "$ref": "#/$defs/LeadState"
+        },
+        "command_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "Outreach": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "lead_id",
+        "person_id",
+        "campaign_id",
+        "approval_id",
+        "draft_id",
+        "message_hash",
+        "mode",
+        "status",
+        "idempotency_key",
+        "sent_at",
+        "outcome",
+        "simulated"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lead_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "person_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "campaign_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "approval_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "draft_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "message_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "mode": {
+          "const": "log_only"
+        },
+        "status": {
+          "const": "sent"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sent_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "delivered",
+                "replied",
+                "bounced"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "simulated": {
+          "const": true
+        }
+      }
+    },
+    "LeadDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lead",
+        "company",
+        "person",
+        "campaign",
+        "evidence",
+        "verifications",
+        "draft",
+        "approvals",
+        "outreach",
+        "events"
+      ],
+      "properties": {
+        "lead": {
+          "$ref": "#/$defs/LeadSummary"
+        },
+        "company": {
+          "$ref": "#/$defs/Company"
+        },
+        "person": {
+          "$ref": "#/$defs/Person"
+        },
+        "campaign": {
+          "$ref": "#/$defs/Campaign"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          }
+        },
+        "verifications": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VerificationReport"
+          }
+        },
+        "draft": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Draft"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "approvals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Approval"
+          }
+        },
+        "outreach": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Outreach"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Event"
+          }
+        }
+      }
+    },
+    "LeadList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "total"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LeadSummary"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "CheckContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lead",
+        "company",
+        "person",
+        "campaign",
+        "evidence",
+        "previous_reports",
+        "history",
+        "email_checks"
+      ],
+      "properties": {
+        "lead": {
+          "$ref": "#/$defs/LeadSummary"
+        },
+        "company": {
+          "$ref": "#/$defs/Company"
+        },
+        "person": {
+          "$ref": "#/$defs/Person"
+        },
+        "campaign": {
+          "$ref": "#/$defs/Campaign"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          }
+        },
+        "previous_reports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VerificationReport"
+          }
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Event"
+          }
+        },
+        "email_checks": {
+          "$ref": "#/$defs/EmailChecks"
+        }
+      }
+    },
+    "GateDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed",
+        "reason_codes",
+        "lead_id",
+        "lead_version",
+        "verification_id",
+        "approval_id",
+        "draft_id",
+        "message_hash",
+        "checked_at",
+        "prior_outreach_ids"
+      ],
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReasonCode"
+          }
+        },
+        "lead_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lead_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "verification_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "approval_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "draft_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message_hash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "checked_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "prior_outreach_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          }
+        }
+      }
+    },
+    "SendReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outreach_id",
+        "lead_id",
+        "lead_version",
+        "status",
+        "mode",
+        "reason_codes",
+        "message_hash",
+        "recorded_at",
+        "simulated"
+      ],
+      "properties": {
+        "outreach_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lead_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lead_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "const": "sent"
+        },
+        "mode": {
+          "const": "log_only"
+        },
+        "reason_codes": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "message_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "recorded_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "simulated": {
+          "const": true
+        }
+      }
+    },
+    "GraphNodeData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "type",
+        "properties"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Company",
+            "Person",
+            "Lead",
+            "Verification",
+            "Campaign",
+            "Approval",
+            "Draft",
+            "Outreach",
+            "Evidence",
+            "Event"
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "GraphEdgeData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source",
+        "target",
+        "label"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        }
+      }
+    },
+    "GraphNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/GraphNodeData"
+        }
+      }
+    },
+    "GraphEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/GraphEdgeData"
+        }
+      }
+    },
+    "ExplanationGraph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outreach_id",
+        "complete",
+        "nodes",
+        "edges",
+        "events",
+        "summary"
+      ],
+      "properties": {
+        "outreach_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphNode"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphEdge"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Event"
+          }
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        }
+      }
+    },
+    "IngestResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_record_id",
+        "lead_id",
+        "person_id",
+        "outcome",
+        "canonical_lead_id",
+        "state",
+        "version"
+      ],
+      "properties": {
+        "source_record_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lead_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "person_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "inserted",
+            "duplicate",
+            "needs_review",
+            "existing"
+          ]
+        },
+        "canonical_lead_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "$ref": "#/$defs/LeadState"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "ExtractRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_id",
+        "campaign_id",
+        "source_ids"
+      ],
+      "properties": {
+        "command_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "campaign_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+          }
+        }
+      }
+    },
+    "ExtractResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "execution_mode",
+        "model_id",
+        "prompt_version",
+        "items"
+      ],
+      "properties": {
+        "execution_mode": {
+          "$ref": "#/$defs/ExecutionMode"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prompt_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IngestResult"
+          }
+        }
+      }
+    },
+    "MutationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_id",
+        "expected_version"
+      ],
+      "properties": {
+        "command_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "DraftRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_id",
+        "expected_version",
+        "subject",
+        "body_text"
+      ],
+      "properties": {
+        "command_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "subject": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "body_text": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ApproveRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_id",
+        "expected_version",
+        "draft_id",
+        "message_hash",
+        "actor"
+      ],
+      "properties": {
+        "command_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "draft_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "message_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "actor": {
+          "$ref": "#/$defs/Actor"
+        }
+      }
+    },
+    "OptOutRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_id",
+        "expected_version",
+        "actor"
+      ],
+      "properties": {
+        "command_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "actor": {
+          "$ref": "#/$defs/Actor"
+        }
+      }
+    },
+    "ScanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_id",
+        "campaign_id"
+      ],
+      "properties": {
+        "command_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "campaign_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        }
+      }
+    },
+    "ScanResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checked_at",
+        "updated"
+      ],
+      "properties": {
+        "checked_at": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "UTC Unix seconds, never milliseconds."
+        },
+        "updated": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LeadSummary"
+          }
+        }
+      }
+    },
+    "OutcomeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command_id",
+        "expected_version",
+        "actor",
+        "outcome"
+      ],
+      "properties": {
+        "command_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "actor": {
+          "$ref": "#/$defs/Actor"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "delivered",
+            "replied",
+            "bounced"
+          ]
+        }
+      }
+    },
+    "SendEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outreach_id",
+        "lead_id",
+        "approval_id",
+        "verification_id",
+        "draft",
+        "idempotency_key",
+        "gate_decision"
+      ],
+      "properties": {
+        "outreach_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "lead_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "approval_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "verification_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "draft": {
+          "$ref": "#/$defs/Draft"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "gate_decision": {
+          "$ref": "#/$defs/GateDecision"
+        }
+      }
+    },
+    "SenderResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outreach_id",
+        "status",
+        "mode",
+        "message_hash",
+        "simulated"
+      ],
+      "properties": {
+        "outreach_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+        },
+        "status": {
+          "const": "logged"
+        },
+        "mode": {
+          "const": "log_only"
+        },
+        "message_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "simulated": {
+          "const": true
+        }
+      }
+    },
+    "ErrorBody": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message",
+        "details"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "VERSION_CONFLICT",
+            "INVALID_STATE",
+            "COMMAND_REUSED",
+            "COMMAND_IN_PROGRESS",
+            "SEND_BLOCKED",
+            "INVALID_INPUT",
+            "NOT_FOUND",
+            "DEPENDENCY_UNAVAILABLE",
+            "ASSESSMENT_INVALID",
+            "INTERNAL_ERROR"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "error"
+      ],
+      "properties": {
+        "error": {
+          "$ref": "#/$defs/ErrorBody"
+        }
+      }
+    },
+    "SourceList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Source"
+          }
+        }
+      }
+    },
+    "Health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "graph",
+        "execution_mode",
+        "model_id",
+        "sender_mode"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "degraded"
+          ]
+        },
+        "graph": {
+          "type": "string",
+          "enum": [
+            "connected",
+            "unavailable"
+          ]
+        },
+        "execution_mode": {
+          "$ref": "#/$defs/ExecutionMode"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sender_mode": {
+          "const": "log_only"
+        }
+      }
+    }
+  }
+}
