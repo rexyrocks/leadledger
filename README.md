@@ -4,7 +4,7 @@
 
 LeadLedger is a hackathon prototype for a multi-agent lead-generation workflow with **FalkorDB as shared memory and the decision layer**. The graph connects contacts, evidence, verification reports, campaigns, approvals, and outreach history.
 
-Built by **Kunal and Shubhangi (Mahi)** for Graph Hacks.
+Built by **Kunal and Shubhangi** for Graph Hacks.
 
 > **Current status:** Shared JSON schemas, API definitions, and mock payloads are committed. Backend implementation is in progress on `kunal/backend`; this README describes the intended MVP, not a completed deployment.
 
@@ -65,7 +65,7 @@ Agents return structured reports with evidence IDs and supporting quotes. They d
 
 ## Work split
 
-| Kunal — backend | Shubhangi / Mahi — agents and interface |
+| Kunal — backend | Shubhangi — agents and interface |
 | --- | --- |
 | FalkorDB setup, graph schema, and seed loading | Permitted sources and Lead Extractor |
 | Data Manager, states, and event history | Evidence-backed Lead Checker |
@@ -75,7 +75,7 @@ Agents return structured reports with evidence IDs and supporting quotes. They d
 
 Kunal's backend calls the sender only after a fresh gate check, then commits the outcome and audit events. The sender itself does not write to the database.
 
-Suggested branches: `kunal/backend` and `mahi/agents-ui`. Build against the shared contracts and flag format changes before changing field names. Integrate around build hour 8.
+Suggested branches: `kunal/backend` and `shubhangi/agents-ui`. Build against the shared contracts and flag format changes before changing field names. Integrate around build hour 8.
 
 ## Required demo
 
