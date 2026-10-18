@@ -16,7 +16,7 @@ async function health(){
   if(app.health.execution_mode!=='live_llm'){$('#health').textContent='Fixture replay';$('#runtime-note').textContent='Offline demonstration: agent responses are labelled fixtures. FalkorDB and policy checks are real.';return}
   $('#health').textContent='Qwen · checking';
   try{const r=await request('/ui-api/runtime');$('#health').textContent=r.ready?'Qwen · online':'Qwen · '+r.status;
-   $('#runtime-note').textContent=r.ready?'Qwen connection checked '+date(r.checked_at)+'. Agent actions use live inference; synthetic source and DNS fixtures stay labelled.':'Qwen is not ready. Reconnect its Colab model and relay, then Refresh. Existing evidence and graph decisions remain inspectable; no silent fixture fallback.';
+   $('#runtime-note').textContent=r.ready?'Qwen connection checked '+date(r.checked_at)+'. Agent actions use live inference; synthetic source and DNS fixtures stay labelled.':(app.health.model_id?.startsWith('@cf/')?'Hosted Qwen is not ready, or its daily free allowance is exhausted. Refresh later. Existing evidence and graph decisions remain inspectable; no silent fixture fallback.':'Qwen is not ready. Reconnect its Colab model and relay, then Refresh. Existing evidence and graph decisions remain inspectable; no silent fixture fallback.');
   }catch{$('#health').textContent='Qwen · status unknown';$('#runtime-note').textContent='Could not verify the model connection. Refresh before a live demonstration.'}
   $('#health').title=app.health.model_id||'';
  }catch{notice('Cannot reach the local API. Check the server connection.',true)}

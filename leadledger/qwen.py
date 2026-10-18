@@ -86,14 +86,14 @@ class QwenClient:
                 result = self._completion_direct(prompt)
             else:
                 if not self._request('/health').get('ready'):
-                    raise Problem('DEPENDENCY_UNAVAILABLE', 'Qwen GPU is offline. Reconnect its runtime; fixture replay remains a separate mode.', 503)
+                    raise Problem('DEPENDENCY_UNAVAILABLE', 'Qwen is unavailable or its free allowance is exhausted; fixture replay remains a separate mode.', 503)
                 job = self._request('/jobs', {'messages': [{'role':'user','content':prompt}], 'thinking':False})['id']
                 deadline = time.monotonic() + self.timeout
                 try:
                     while time.monotonic() < deadline:
                         response = self._request('/jobs/' + job)
                         if response.get('error'):
-                            raise Problem('DEPENDENCY_UNAVAILABLE', 'Qwen could not finish this task. Retry after checking the GPU.', 503)
+                            raise Problem('DEPENDENCY_UNAVAILABLE', 'Qwen could not finish this task. Check provider readiness or its daily allowance before retrying.', 503)
                         if response.get('done'):
                             result = response.get('content', '')
                             break
