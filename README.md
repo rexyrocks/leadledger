@@ -82,6 +82,12 @@ The workflow is built around a few key components:
 
 The agents provide structured assessments; they do not independently authorize outreach. The policy gate makes the final decision.
 
+## Graph data model
+
+FalkorDB stores the application records and their relationships, rather than serving only as a visualization layer. `Company` connects to `Person`; each `Person` has campaign-specific `Lead` records. A lead links to its source `Evidence`, `Verification`, `Draft`, `Approval`, and ordered `Event` history. An `Approval` binds the exact draft and verification; an `Outreach` links back to its lead, recipient and saved draft. `Command` records support idempotent retries. Only the Data Manager writes graph state.
+
+The core queries are committed in [gate.cypher](leadledger/queries/gate.cypher), [stale.cypher](leadledger/queries/stale.cypher), [why.cypher](leadledger/queries/why.cypher), and [why_events.cypher](leadledger/queries/why_events.cypher). See [the backend implementation](leadledger/manager.py) for write guards and orchestration.
+
 ## Key features
 
 ### Evidence-backed lead verification
@@ -200,6 +206,10 @@ The initial MVP focuses on one B2B SaaS partnerships campaign with 20 synthetic 
 ## Hackathon track
 
 LeadLedger is designed for **Agents That Act on Connected Data**, using graph relationships to inform actions and make their outcomes explainable. It also explores **Agent Memory and Coordination** through shared context between the Extractor and Checker.
+
+## AI assistance disclosure
+
+OpenAI Codex assisted with implementation, tests, documentation, interface work, and deployment troubleshooting. Qwen is the optional runtime model for extraction, evidence checking, and drafting; it has no authority to approve or send outreach. The demo video uses Kokoro-generated narration and recorded interface captures from a separately labelled fixture replay. All demo contacts are synthetic and sending is log-only.
 
 ## References
 
