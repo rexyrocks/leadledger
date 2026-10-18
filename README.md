@@ -1,108 +1,181 @@
 # LeadLedger
 
-**Find leads. Verify the evidence. Approve the message. Explain every send.**
+**Find leads. Check the evidence. Approve before sending.**
 
-LeadLedger is a hackathon prototype for a multi-agent lead-generation workflow with **FalkorDB as shared memory and the decision layer**. The graph connects contacts, evidence, verification reports, campaigns, approvals, and outreach history.
+Finding a potential customer is only the first step. The information might be outdated, the contact might be a duplicate, or the person might have already been contacted or opted out.
 
-Built by **Kunal and Shubhangi** for Graph Hacks.
+LeadLedger is a graph-powered lead-generation prototype built with FalkorDB. It connects leads to their source evidence, verification reports, message drafts, approvals, and outreach history. The goal is to make lead generation more than a list of names and email addresses: every decision should have an explanation you can trace back to the information behind it.
 
-> **Current status:** Shared JSON schemas, API definitions, and mock payloads are committed. Backend implementation is in progress on `kunal/backend`; this README describes the intended MVP, not a completed deployment.
+> **Project status:** Hackathon prototype in development. Outreach is simulated; no real emails are sent.
 
-## The workflow
+## The problem
+
+Lead-generation workflows often bring together information from multiple sources without making it easy to understand how reliable that information is or why a contact was selected.
+
+A useful workflow needs to answer more than *“Who should we contact?”*
+
+- Where did this information come from?
+- Does the available evidence support the contact's details?
+- Is the verification still current?
+- Has this person opted out or already been contacted?
+- Who approved the message, and has it changed since approval?
+- Why was an action allowed or blocked?
+
+LeadLedger explores how a graph database and a controlled, multi-agent workflow can help answer these questions.
+
+## How it works
 
 ```mermaid
 flowchart LR
-    Sources[Permitted sources] --> Extractor[Lead Extractor agent]
+    Sources[Permitted sources] --> Extractor[Lead Extractor]
     Extractor --> Graph[(FalkorDB)]
-    Graph --> Checker[Lead Checker agent]
+    Graph --> Checker[Lead Checker]
     Checker --> Graph
     Graph --> Draft[Message draft]
-    Draft --> Human[Human approval]
-    Human --> Gate[Deterministic policy gate]
+    Draft --> Approval[Human approval]
+    Approval --> Gate[Policy gate]
     Graph --> Gate
     Gate -->|Allowed| Sender[Log-only sender]
     Gate -->|Blocked| History[Recorded reason]
     Sender --> Graph
     History --> Graph
-    Graph --> Why[Why was this lead sent?]
+    Graph --> Why[Explain the decision]
 ```
 
-Two LLM agents extract and check leads. The Data Manager, policy gate, and sender are deterministic components.
+The workflow is built around a few key components:
 
-The gate requires:
+- **Lead Extractor:** identifies candidate leads and structures the information found in permitted source records.
+- **Lead Checker:** evaluates lead details against stored evidence and returns a structured assessment.
+- **FalkorDB:** connects leads, evidence, verification reports, campaigns, approvals, and outreach history so decisions can use shared context.
+- **Policy gate:** deterministically checks whether the required conditions for a simulated send are satisfied.
+- **Human approval:** ensures the message is approved for the specific contact and revision rather than granting blanket permission to send.
+- **Audit history:** records outcomes and reasons so decisions can be investigated later.
 
-- A passed, current verification.
-- No opt-out, suppression, or duplicate record.
-- No prior contact in the active or another campaign.
-- Human approval for the exact contact, verification, and message revision.
-- An unchanged message since approval.
+The agents provide structured assessments; they do not independently authorize outreach. The policy gate makes the final decision.
 
-Current workflow state is stored alongside an append-only event history.
+## Key features
 
-## MVP boundaries
+### Evidence-backed lead verification
 
-- One active campaign, one industry: B2B SaaS partnerships.
-- Twenty synthetic lead records, including stale, duplicate, opted-out, and previously contacted cases.
-- A small registry of permitted source snapshots.
-- Log-only outreach. **No real emails are sent.**
-- Fixture replay is labelled; synthetic DNS checks are not represented as live verification.
-- No multi-tenancy, unrestricted scraping, or production authentication.
+Lead information is evaluated against stored source snapshots. Verification reports reference evidence IDs and supporting quotes, making it easier to inspect the basis for a claim.
 
-## Shared contracts — start here
+A source quote shows what the source recorded; it is not, by itself, proof that the information is true.
 
-| File | Purpose |
-| --- | --- |
-| [openapi.json](openapi.json) | HTTP routes and request/response formats, contract version 1.0.0 |
-| [schemas.json](schemas.json) | Standalone JSON Schema definitions for agent and backend payloads |
-| [examples.json](examples.json) | Mock requests and responses for parallel development |
-| [message-hash-vector.json](message-hash-vector.json) | Canonical message JSON and its expected SHA-256 hash |
+### Graph-based context
 
-The planned local API is `http://127.0.0.1:8000/api`.
+FalkorDB acts as the shared context layer, connecting information that would otherwise be scattered across separate records. This supports checks involving previous contact, duplicate records, stale verification, and approval history.
 
-Every lead-changing request carries a fresh UUID `command_id` and the lead's current `expected_version`. Retry an identical request with the same command ID. Approval refers to a specific `draft_id` and `message_hash`.
+### Human approval before outreach
 
-Agents return structured reports with evidence IDs and supporting quotes. They do not write arbitrary graph data or authorize sends.
+A message must be approved for the relevant contact, verification, and message revision. If the message changes after approval, the previous approval must not authorize the changed message.
 
-## Work split
+### Deterministic send controls
 
-| Kunal — backend | Shubhangi — agents and interface |
-| --- | --- |
-| FalkorDB setup, graph schema, and seed loading | Permitted sources and Lead Extractor |
-| Data Manager, states, and event history | Evidence-backed Lead Checker |
-| Stale queries and policy gate | Email syntax and MX validation adapters |
-| Approval integrity and send orchestration | Message template and log-only sender function |
-| FastAPI routes and historical explanation query | Lead review, approval controls, and explanation graph |
+Before a simulated send is permitted, the policy gate checks for a current, passed verification; opt-outs and suppression conditions; duplicate or previous-contact restrictions; and valid approval for the unchanged message.
 
-Kunal's backend calls the sender only after a fresh gate check, then commits the outcome and audit events. The sender itself does not write to the database.
+### Explainable decisions
 
-Suggested branches: `kunal/backend` and `shubhangi/agents-ui`. Build against the shared contracts and flag format changes before changing field names. Integrate around build hour 8.
+LeadLedger is designed to answer **“Why was this lead sent?”** by tracing the recorded evidence, verification, approval, and policy decision. Blocked actions should also have recorded reasons.
 
-## Required demo
+## Demo scenarios
 
-1. Discover → verify → draft → human approval → simulated send.
-2. Auto-flag a stale verification through a graph query.
-3. Block a send because of opt-out or prior contact.
-4. Ask **“Why was this lead sent?”** and display its recorded evidence and approval chain.
-5. Restart and retrieve the same history.
+The planned demo covers the full workflow and several failure cases:
 
-## Planned stack
+1. **Discover and verify:** process a candidate lead and inspect its supporting evidence.
+2. **Approve and simulate:** review a message, approve the exact draft, and record a simulated send.
+3. **Detect stale verification:** use graph-based checks to identify verification that is no longer current.
+4. **Block inappropriate outreach:** demonstrate a block caused by an opt-out or previous contact.
+5. **Explain the outcome:** inspect why a send was permitted or blocked and follow its audit trail.
+6. **Recover history:** restart the application and retrieve previously recorded history.
 
-Python, FastAPI, Pydantic, the official FalkorDB Python client, and a small HTML/JavaScript frontend with Cytoscape.js. FalkorDB runs locally; Docker is the standard setup, with embedded FalkorDB being evaluated for development.
+These are intended demo scenarios; individual capabilities should be considered complete only when implemented and verified.
 
-The prototype does not require paid hosting or a paid email service. Live LLM access depends on the selected provider's availability and quota; labelled fixtures support offline development.
+## Tech stack
 
-## Hackathon fit
+- **Python** — workflow logic and agent adapters
+- **FastAPI** — HTTP API
+- **Pydantic and JSON Schema** — structured payloads and contract validation
+- **FalkorDB** — graph storage and connected context
+- **HTML, JavaScript, and Cytoscape.js** — planned lightweight interface and graph visualization
+- **Docker** — local database setup
 
-Primary track: **Agents That Act on Connected Data** — graph-driven actions, multi-hop evidence paths, and explainable decisions.
+The prototype is designed for local development without paid hosting or a paid email service. Live LLM functionality depends on the selected provider and available quota; labelled fixtures support offline development.
 
-Supporting capabilities: **Agent Memory and Coordination** — persistent shared context and handoffs between the Extractor and Checker.
+## Getting started
+
+### Prerequisites
+
+- Python 3.12 or later
+- Docker Desktop with Linux containers enabled
+- Git
+
+### Setup
+
+Clone the repository and enter its directory:
+
+```bash
+git clone https://github.com/rexyrocks/leadledger.git
+cd leadledger
+```
+
+Create and activate a virtual environment, then install the project with its test dependencies.
+
+**Windows PowerShell:**
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[test]"
+```
+
+Start FalkorDB:
+
+```powershell
+docker compose up -d --wait
+```
+
+Run the test suite using the server-backed graph configuration:
+
+```powershell
+python -m pytest --graph-backend=server
+```
+
+For additional setup details, consult [`docs/BACKEND.md`](docs/BACKEND.md). The API is intended to run locally at `http://127.0.0.1:8000/api`; consult the backend instructions for the current launch command.
+
+## Project structure
+
+| Path | Purpose |
+|---|---|
+| `leadledger/` | Backend package, contracts, adapters, repository, and API |
+| `leadledger/queries/` | Graph queries for policy checks, stale verification, and explanations |
+| `schemas.json` | Shared JSON Schema definitions |
+| `openapi.json` | API contract |
+| `examples.json` | Example request and response payloads |
+| `message-hash-vector.json` | Canonical message and expected SHA-256 hash |
+| `tests/` | Automated tests |
+| `scripts/` | Contract checks and demo utilities |
+| `docs/` | Backend instructions, contracts, and project documentation |
+
+See [`docs/CONTRACTS.md`](docs/CONTRACTS.md) for the shared data contracts and [`PLAN.md`](PLAN.md) for implementation planning.
+
+## Scope and limitations
+
+The initial MVP focuses on one B2B SaaS partnerships campaign with 20 synthetic lead records, including stale, duplicate, opted-out, and previously contacted cases.
+
+- Outreach is log-only. No real emails are sent.
+- Fixture replay is labelled and must not be mistaken for live LLM or DNS verification.
+- Email checks do not attempt SMTP mailbox probing.
+- The prototype does not provide production authentication, multi-tenancy, or unrestricted scraping.
+- Approval and audit controls demonstrate the intended architecture; they are not a claim of production readiness.
+
+## Hackathon track
+
+LeadLedger is designed for **Agents That Act on Connected Data**, using graph relationships to inform actions and make their outcomes explainable. It also explores **Agent Memory and Coordination** through shared context between the Extractor and Checker.
 
 ## References
 
-- [Graph Hacks — official event](https://www.wemakedevs.org/hackathons/falkordb)
+- [Graph Hacks](https://www.wemakedevs.org/hackathons/falkordb)
 - [FalkorDB Docker setup](https://docs.falkordb.com/operations/docker)
 - [FalkorDB Python client](https://github.com/FalkorDB/falkordb-py)
 - [FalkorDB Cypher compatibility](https://docs.falkordb.com/cypher/cypher-support)
-- [Cytoscape.js](https://js.cytoscape.org/)
-
-This is a hackathon prototype. The approval flow and audit history demonstrate the architecture; they are not a claim of production readiness.
+- [Cytoscape.js documentation](https://js.cytoscape.org/)
