@@ -8,6 +8,35 @@ LeadLedger is a graph-powered lead-generation prototype built with FalkorDB. It 
 
 > **Project status:** Hackathon prototype in development. Outreach is simulated; no real emails are sent.
 
+## Repository and demo
+
+- **GitHub:** [rexyrocks/leadledger](https://github.com/rexyrocks/leadledger)
+- **Demo dashboard:** [Open LeadLedger](https://leadledger.live/ui/)
+- **Demo API docs:** [Explore the API](https://leadledger.live/docs)
+
+The demo uses the custom domain `leadledger.live` through a named Cloudflare tunnel. It is available while the local app and tunnel are running on the host Mac; stopping them or putting the Mac to sleep takes the demo offline. Demo records are synthetic and sending is **log-only: no real emails are sent**.
+
+> **Integrated workspace:** `main` includes Qwen Extractor/Checker adapters, conservative email checks, human-reviewed Qwen drafts and the local review UI. FalkorDB retains all state and send decisions. Seeded reports are labelled fixtures; Qwen is an explicit runtime mode. No real emails are sent.
+
+See [agents and UI setup](docs/AGENTS_UI.md). Quick start after installing dependencies: `python scripts/run_workspace.py --agents fixture --seed`, then open `http://127.0.0.1:8123/ui/`.
+
+## Run the backend
+
+See [local setup and demo commands](docs/BACKEND.md), [the integration guide](docs/CONTRACTS.md), and [the accepted plan](PLAN.md).
+
+**Windows:** use the [PowerShell + Docker instructions](docs/BACKEND.md#windows-powershell-use-docker-not-falkordblite). Embedded FalkorDBLite does not support native Windows. With a running Docker database, the full test command is `python -m pytest --graph-backend=server`; the `local` extra is unnecessary.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[local,test]'
+export LEADLEDGER_DB=embedded
+python -m leadledger.seed
+python -m uvicorn leadledger.api:app --host 127.0.0.1 --port 8000 --workers 1
+```
+
+Open `http://127.0.0.1:8000/docs`. In another terminal, run `python scripts/demo.py`. Embedded mode uses real FalkorDB; macOS requires the `libomp` runtime. Docker setup is also provided in `compose.yaml`.
+
 ## The problem
 
 Lead-generation workflows often bring together information from multiple sources without making it easy to understand how reliable that information is or why a contact was selected.
@@ -96,7 +125,7 @@ These are intended demo scenarios; individual capabilities should be considered 
 - **FastAPI** — HTTP API
 - **Pydantic and JSON Schema** — structured payloads and contract validation
 - **FalkorDB** — graph storage and connected context
-- **HTML, JavaScript, and Cytoscape.js** — planned lightweight interface and graph visualization
+- **HTML, JavaScript, and Cytoscape.js** — lead review interface and graph visualization
 - **Docker** — local database setup
 
 The prototype is designed for local development without paid hosting or a paid email service. Live LLM functionality depends on the selected provider and available quota; labelled fixtures support offline development.
