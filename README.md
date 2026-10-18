@@ -15,7 +15,9 @@ LeadLedger is a graph-powered lead-generation prototype built with FalkorDB. It 
 - **Demo video:** [Watch the narrated walkthrough](https://youtu.be/AdjHO9bNQAk) — labelled fixture replay with synthetic records and log-only sends.
 - **Demo API docs:** [Explore the API](https://leadledger.live/docs)
 
-The demo uses the custom domain `leadledger.live` through a named Cloudflare tunnel. It is available while the local app and tunnel are running on the host Mac; stopping them or putting the Mac to sleep takes the demo offline. Demo records are synthetic and sending is **log-only: no real emails are sent**.
+The demo runs on an AWS CPU server with persistent FalkorDB storage, behind Cloudflare Tunnel. Qwen inference uses a private Cloudflare Workers AI relay; the live site no longer needs the Mac or a Colab session to stay awake. Demo records are synthetic and sending is **log-only: no real emails are sent**.
+
+The AI relay uses the free Workers AI allowance with a persistent 9,000-neuron daily guard (below the account's 10,000-neuron free allowance). It stops accepting inference when that budget is exhausted; no paid AI plan or silent fixture fallback is enabled. The allowance resets at midnight UTC, and provider errors or slow requests can still occur. AWS hosting consumes credits or incurs charges separately. The current server has an agreed automatic stop on **17 November 2026 at 16:52 UTC**; retained disk storage continues to cost money afterward. See [deployment and verification](deploy/aws/README.md).
 
 > **Integrated workspace:** `main` includes Qwen Extractor/Checker adapters, conservative email checks, human-reviewed Qwen drafts and the local review UI. FalkorDB retains all state and send decisions. Seeded reports are labelled fixtures; Qwen is an explicit runtime mode. No real emails are sent.
 
