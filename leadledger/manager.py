@@ -329,45 +329,63 @@ class Manager:
                                  'model_id':self.agents.model_id if generated else None})
             return self._save(u,action,body,self._detail(u.s,lead_id))
 
+    def _gate_facts(self,lead_id):
+        rows=self.repo.query_file('gate',{'lead_id':lead_id})
+        if not rows: raise Problem('NOT_FOUND','Lead not found.',404)
+        if len(rows)!=1: raise Problem('DEPENDENCY_UNAVAILABLE','Ambiguous graph facts; sending blocked.',503)
+        p,l,c,v,d,a,approved,basis,evidence,prior=rows[0]
+        return {'person':dict(p.properties),'lead':dict(l.properties),'campaign':dict(c.properties),
+                'verification':dict(v.properties) if v else None,
+                'draft':dict(d.properties) if d else None,'approval':dict(a.properties) if a else None,
+                'approved':list(approved),'basis':list(basis),'evidence':list(evidence),'prior':list(prior)}
+
+    def _evaluate_gate(self,lead_id,facts,now):
+        p,l,c=(facts[k] for k in ('person','lead','campaign'))
+        v,d,a=(facts[k] for k in ('verification','draft','approval'))
+        approved,basis,evidence,prior=(facts[k] for k in ('approved','basis','evidence','prior'))
+        reasons=[]
+        if l.get('state')!='Approved for sending': reasons.append('WRONG_STATE')
+        if p.get('opted_out') is not False: reasons.append('OPTED_OUT')
+        if p.get('suppressed') is not False: reasons.append('SUPPRESSED')
+        if l.get('duplicate') is not False: reasons.append('DUPLICATE')
+        if (not v or v.get('status')!='passed' or v.get('valid_until',0)<=now
+            or v.get('contact_version')!=p.get('contact_version') or not evidence):
+            reasons.append('VERIFICATION_INVALID')
+        if not d: reasons.append('DRAFT_MISSING')
+        if (not a or a.get('revoked') is not False or not approved or not basis
+            or a.get('contact_version')!=p.get('contact_version')
+            or a.get('policy_version')!=c.get('policy_version')
+            or a.get('verification_id')!=(v or {}).get('id')
+            or a.get('draft_id')!=(d or {}).get('id')):
+            reasons.append('APPROVAL_INVALID')
+        if (not d or not a or a.get('message_hash')!=d.get('message_hash')
+            or message_hash(d)!=d.get('message_hash')
+            or d.get('to_address')!=p.get('email_normalized') or d.get('mode')!='log_only'):
+            reasons.append('MESSAGE_CHANGED')
+        if prior: reasons.append('ALREADY_CONTACTED')
+        for artifact in [v,d,a]:
+            if artifact and (artifact.get('lead_id')!=l['id'] or artifact.get('person_id')!=p['id']
+                             or artifact.get('campaign_id')!=c['id']):
+                reasons.append('AUDIT_INCONSISTENT')
+        if (l.get('person_id')!=p['id'] or l.get('campaign_id')!=c['id'] or c.get('mode')!='log_only'
+            or any(len(x)>1 for x in [approved,basis])): reasons.append('AUDIT_INCONSISTENT')
+        return validate('GateDecision',{'allowed':not reasons,'reason_codes':list(dict.fromkeys(reasons)),
+            'lead_id':lead_id,'lead_version':l['version'],'verification_id':(v or {}).get('id'),
+            'approval_id':(a or {}).get('id'),'draft_id':(d or {}).get('id'),
+            'message_hash':(d or {}).get('message_hash'),'checked_at':now,
+            'prior_outreach_ids':sorted(set(prior))})
+
     def gate(self,lead_id):
         with self.lock:
-            rows=self.repo.query_file('gate',{'lead_id':lead_id})
-            if not rows: raise Problem('NOT_FOUND','Lead not found.',404)
-            if len(rows)!=1: raise Problem('DEPENDENCY_UNAVAILABLE','Ambiguous graph facts; sending blocked.',503)
-            p,l,c,v,d,a,approved,basis,evidence,prior=rows[0]
-            p,l,c=[dict(x.properties) for x in [p,l,c]]
-            v,d,a=[dict(x.properties) if x else None for x in [v,d,a]]
-            reasons=[]
-            if l.get('state')!='Approved for sending': reasons.append('WRONG_STATE')
-            if p.get('opted_out') is not False: reasons.append('OPTED_OUT')
-            if p.get('suppressed') is not False: reasons.append('SUPPRESSED')
-            if l.get('duplicate') is not False: reasons.append('DUPLICATE')
-            if (not v or v.get('status')!='passed' or v.get('valid_until',0)<=self.clock()
-                or v.get('contact_version')!=p.get('contact_version') or not evidence):
-                reasons.append('VERIFICATION_INVALID')
-            if not d: reasons.append('DRAFT_MISSING')
-            if (not a or a.get('revoked') is not False or not approved or not basis
-                or a.get('contact_version')!=p.get('contact_version')
-                or a.get('policy_version')!=c.get('policy_version')
-                or a.get('verification_id')!=(v or {}).get('id')
-                or a.get('draft_id')!=(d or {}).get('id')):
-                reasons.append('APPROVAL_INVALID')
-            if (not d or not a or a.get('message_hash')!=d.get('message_hash')
-                or message_hash(d)!=d.get('message_hash')
-                or d.get('to_address')!=p.get('email_normalized') or d.get('mode')!='log_only'):
-                reasons.append('MESSAGE_CHANGED')
-            if prior: reasons.append('ALREADY_CONTACTED')
-            for artifact in [v,d,a]:
-                if artifact and (artifact.get('lead_id')!=l['id'] or artifact.get('person_id')!=p['id']
-                                 or artifact.get('campaign_id')!=c['id']):
-                    reasons.append('AUDIT_INCONSISTENT')
-            if (l.get('person_id')!=p['id'] or l.get('campaign_id')!=c['id'] or c.get('mode')!='log_only'
-                or any(len(x)>1 for x in [approved,basis])): reasons.append('AUDIT_INCONSISTENT')
-            return validate('GateDecision',{'allowed':not reasons,'reason_codes':list(dict.fromkeys(reasons)),
-                'lead_id':lead_id,'lead_version':l['version'],'verification_id':(v or {}).get('id'),
-                'approval_id':(a or {}).get('id'),'draft_id':(d or {}).get('id'),
-                'message_hash':(d or {}).get('message_hash'),'checked_at':self.clock(),
-                'prior_outreach_ids':sorted(set(prior))})
+            return self._evaluate_gate(lead_id,self._gate_facts(lead_id),self.clock())
+
+    def decision_lab(self,lead_id):
+        from .decision_lab import build_lab
+        with self.lock:
+            started=time.perf_counter()
+            facts=self._gate_facts(lead_id)
+            query_ms=round((time.perf_counter()-started)*1000,3)
+            return build_lab(self,lead_id,facts,self.clock(),query_ms)
 
     def send(self,lead_id,body):
         action=f'send:{lead_id}'

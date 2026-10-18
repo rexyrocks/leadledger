@@ -2,12 +2,15 @@ import asyncio
 import contextlib
 import json
 import logging
+import threading
+import time
 from contextlib import asynccontextmanager
 from uuid import uuid4
 from fastapi import FastAPI, Body, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.staticfiles import StaticFiles
 from jsonschema import ValidationError
 from starlette.concurrency import run_in_threadpool
@@ -56,7 +59,7 @@ def create_app(manager=None):
         if owns and m:
             await run_in_threadpool(m.repo.close)
 
-    app=FastAPI(title='LeadLedger',lifespan=lifespan)
+    app=FastAPI(title='LeadLedger',lifespan=lifespan,docs_url=None)
     app.state.manager=manager
     app.add_middleware(CORSMiddleware,allow_origins=['http://localhost:5173','http://127.0.0.1:5173'],
                        allow_methods=['GET','POST'],allow_headers=['Content-Type'])
@@ -103,6 +106,37 @@ def create_app(manager=None):
             'graph':'connected' if connected else 'unavailable',
             'execution_mode':manager.agents.execution_mode if manager else 'fixture_replay',
             'model_id':manager.agents.model_id if manager else None,'sender_mode':'log_only'})
+
+    runtime_cache={}
+    runtime_lock=threading.Lock()
+
+    @app.get('/ui-api/runtime',include_in_schema=False)
+    def runtime_status():
+        manager=app.state.manager
+        if manager is None:
+            return {'status':'unavailable','ready':False,'mode':'unavailable','checked_at':int(time.time())}
+        if manager.agents.execution_mode!='live_llm':
+            return {'status':'fixture','ready':None,'mode':'fixture_replay','checked_at':int(time.time())}
+        with runtime_lock:
+            if time.monotonic()-runtime_cache.get('at',-10)>5:
+                client=getattr(manager.agents,'client',None)
+                result=client.probe() if client and hasattr(client,'probe') else {'status':'unknown','ready':False}
+                runtime_cache.update(at=time.monotonic(),value={**result,'mode':'live_llm','checked_at':int(time.time())})
+            return dict(runtime_cache['value'])
+
+    @app.get('/ui-api/leads/{lead_id}/decision',include_in_schema=False)
+    def decision_lab(lead_id:str): return m().decision_lab(lead_id)
+
+    @app.get('/ui-api/openapi.json',include_in_schema=False)
+    def browser_contract():
+        # The frozen contract stays byte-identical; only the browser docs use this host.
+        schema=app.openapi()
+        schema['servers']=[{'url':'/'}]
+        return schema
+
+    @app.get('/docs',include_in_schema=False)
+    def browser_docs():
+        return get_swagger_ui_html(openapi_url='/ui-api/openapi.json',title='LeadLedger — API docs')
 
     @app.get('/api/sources')
     def sources(): return wire('SourceList',{'items':list(m().sources.values())})

@@ -21,6 +21,12 @@ The demo uses the custom domain `leadledger.live` through a named Cloudflare tun
 
 See [agents and UI setup](docs/AGENTS_UI.md). Quick start after installing dependencies: `python scripts/run_workspace.py --agents fixture --seed`, then open `http://127.0.0.1:8123/ui/`.
 
+## Inspect a decision
+
+Open **Decision Lab** on any lead to see the current gate, ten policy checks, the executed Cypher and the graph facts behind it. Try an opt-out, suppression, expired verification or changed message against a read-only copy of those facts. These scenarios use the same evaluator as sending and never alter approvals or campaign history.
+
+**Demo guide** helps reviewers find existing examples without resetting the shared graph. The Qwen badge checks actual connection readiness; fixture replay remains separately labelled. See [Decision Lab and verification](docs/DECISION_LAB.md).
+
 ## Run the backend
 
 See [local setup and demo commands](docs/BACKEND.md), [the integration guide](docs/CONTRACTS.md), and [the accepted plan](PLAN.md).
