@@ -8,6 +8,7 @@ from fastapi import FastAPI, Body, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from jsonschema import ValidationError
 from starlette.concurrency import run_in_threadpool
 from .contracts import ROOT, Problem, validate
@@ -24,7 +25,8 @@ def create_app(manager=None):
         app.state.manager=manager
         if owns:
             try:
-                app.state.manager=await run_in_threadpool(lambda:Manager(Repository.connect()))
+                from .runtime import configured_manager
+                app.state.manager=await run_in_threadpool(configured_manager)
                 await run_in_threadpool(app.state.manager.bootstrap)
             except Exception:
                 log.exception('FalkorDB startup failed; API is degraded.')
@@ -88,7 +90,7 @@ def create_app(manager=None):
                                      'details':{}}},status_code=500)
 
     @app.get('/',include_in_schema=False)
-    def root(): return RedirectResponse('/docs')
+    def root(): return RedirectResponse('/ui/')
 
     @app.get('/api/health')
     def health():
@@ -154,6 +156,7 @@ def create_app(manager=None):
         if name not in {'schemas.json','examples.json','message-hash-vector.json'}:
             raise Problem('NOT_FOUND','Contract not found.',404)
         return json.loads((ROOT/name).read_text())
+    app.mount('/ui',StaticFiles(directory=str(ROOT/'leadledger'/'web'),html=True),name='ui')
     return app
 
 

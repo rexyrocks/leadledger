@@ -27,3 +27,17 @@ The original graph-test fixture unconditionally imported `redislite`, which is u
 - After the TCP suite, the external server remained running and its disposable test graphs had been removed.
 
 Windows PowerShell setup is documented in [BACKEND.md](BACKEND.md#windows-powershell-use-docker-not-falkordblite). Actual Windows execution and Docker Desktop/container startup remain unverified on this macOS host. This change fixes the cross-platform test-database selection; it is not a claim that frontend or live-agent testing has been completed.
+
+## Integrated Qwen agents and UI — 2026-10-18
+
+Branch `kunal/agents-ui-qwen`, built on `kunal/backend`. The four frozen shared contract files remain byte-identical to `origin/main`.
+
+- Full local suite: **76 tests passed** after adding the agent, MX, HTTP, draft-race, UI-serving and placeholder checks. One upstream FastAPI/httpx deprecation warning remains. The 24 shared examples and canonical message-hash check pass.
+- Local workspace: real embedded FalkorDB, 20 synthetic active lead records, 18 canonical people, and the historical campaign. Restart preserved the existing graph, live verification and saved draft; `--seed` did not reset it.
+- **Actually executed Qwen3.8-27B-Q4_K_M** through the private Lounge relay to the restored Colab L4. This is separate from adapter unit-test stubs. The runtime startup measured about 29.4 tokens/sec for an eight-token sanity reply, not a broad performance benchmark.
+- Live extraction: source-01 returned a valid, grounded contact; source-14, which omits email, returned no candidate. Existing records were reused rather than duplicated.
+- Live Checker: a complete source passed with five evidence citations. Lead-13's conflicting roles produced Needs review (`CHECKER_REVIEW`, `CONFLICTING_EVIDENCE`). Lead-14's missing email produced Needs review (`CHECKER_REVIEW`, `MISSING_EVIDENCE`). Both gates stayed blocked. All these sources and their DNS outcomes are synthetic fixtures, even though Qwen inference was real.
+- Live drafting: the first proposed subject contained an unfinished placeholder. The prompt was corrected and a rejection rule/test added. A subsequent real Qwen revision named LeadLedger correctly and was saved with model provenance.
+- Browser integration: the local UI's simulated send was rejected before approval. The exact-message approval dialog displayed recipient, subject, body, revision and hash. The automated synthetic demo then exercised reviewer attribution, approval, a separate log-only send, and a complete recorded Cytoscape explanation. The browser also logged a simulated reply, which persisted as Delivery/Reply status. This was a test of the human-review interface, not independent human approval or a real email.
+- The opt-in `scripts/smoke_qwen.py` replayed extraction and negative verification calls against the local API and asserted the browser happy-path evidence chain. Its output and complete synthetic response evidence are in ignored `work/qwen-live-validation.json`.
+- There is no SMTP integration, paid API fallback, public hosting or production identity system. Actual Windows, Docker, non-fixture DNS network resolution and production deployment remain unverified. Synthetic DNS adapter isolation and all MX outcomes were tested with injected resolvers.

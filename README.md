@@ -6,7 +6,9 @@ LeadLedger is a hackathon prototype for a multi-agent lead-generation workflow w
 
 Built by **Kunal and Shubhangi** for Graph Hacks.
 
-> **Backend branch:** `kunal/backend` includes the real FalkorDB workflow, API, seeds, policy gates and explanation queries. The current agent adapters are labelled fixture replay; the live agents and frontend still need integration. No real emails are sent.
+> **Integrated workspace:** branch `kunal/agents-ui-qwen` adds Qwen Extractor/Checker adapters, conservative email checks, human-reviewed Qwen drafts and the local review UI. FalkorDB retains all state and send decisions. Seeded reports are labelled fixtures; Qwen is an explicit runtime mode. No real emails are sent.
+
+See [agents and UI setup](docs/AGENTS_UI.md). Quick start after installing dependencies: `python scripts/run_workspace.py --agents fixture --seed`, then open `http://127.0.0.1:8123/ui/`.
 
 ## Run the backend
 

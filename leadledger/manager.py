@@ -24,12 +24,13 @@ TRANSITIONS={
 
 
 class Manager:
-    def __init__(self,repo,agents=None,sender=log_only_sender,clock=None,email_checker=None):
+    def __init__(self,repo,agents=None,sender=log_only_sender,clock=None,email_checker=None,drafter=None):
         self.repo=repo; self.clock=clock or (lambda:int(time.time()))
         self.sources,self.candidates,self.dns_scenarios=registry(self.clock())
         self.agents=agents or FixtureAgents(self.candidates)
         self.sender=sender
         self.email_checker=email_checker or self._fixture_checks
+        self.drafter=drafter
         self.lock=threading.RLock()
         self.inflight=set()
 
@@ -284,6 +285,24 @@ class Manager:
 
     def draft(self,lead_id,body):
         action=f'draft:{lead_id}'
+        generated=None
+        if self.drafter and body['subject'] is None and body['body_text'] is None:
+            # Network/model work must not hold the mutation lock. Recheck all current
+            # bindings below after generation, before persisting a revision.
+            with self.lock:
+                s=self.repo.snapshot(); cached=self._replay(s,action,body)
+                if cached is not None: return cached
+                l=self._guard(Change(s),lead_id,body['expected_version'])
+                if l['state'] not in {'Approved','Awaiting outreach approval','Approved for sending'}:
+                    raise Problem('INVALID_STATE','Verify this lead before drafting.')
+                v=s.get(l['current_verification_id']); p=s.get(l['person_id'])
+                if v['status']!='passed' or v['valid_until']<=self.clock() or v['contact_version']!=p['contact_version']:
+                    raise Problem('INVALID_STATE','Verification is stale. Run the recheck scan.')
+                context=copy.deepcopy(self._detail(s,lead_id))
+            generated=self.drafter(context)
+            if (not isinstance(generated,dict) or set(generated)!={'subject','body_text'}
+                or any(not isinstance(v,str) or not v.strip() for v in generated.values())):
+                raise Problem('ASSESSMENT_INVALID','Draft generator returned invalid content.',422)
         with self.lock:
             s=self.repo.snapshot(); cached=self._replay(s,action,body)
             if cached is not None: return cached
@@ -298,14 +317,16 @@ class Manager:
             previous=s.get(l['current_draft_id']) if l.get('current_draft_id') else None
             d={'id':uid('draft'),'lead_id':lead_id,'person_id':p['id'],'campaign_id':l['campaign_id'],
                 'revision':previous['revision']+1 if previous else 1,'to_address':p['email_normalized'],
-                'from_address':'kunal@leadledger.test','subject':body['subject'] or f'A partnership conversation with {s.get(l["company_id"])["name"]}',
-                'body_text':body['body_text'] or f'Hi {p["name"].split()[0]},\nWould you be open to a conversation about a SaaS partnership?\nKunal',
+                'from_address':'kunal@leadledger.test','subject':body['subject'] or (generated or {}).get('subject') or f'A partnership conversation with {s.get(l["company_id"])["name"]}',
+                'body_text':body['body_text'] or (generated or {}).get('body_text') or f'Hi {p["name"].split()[0]},\nWould you be open to a conversation about a SaaS partnership?\nKunal',
                 'mode':'log_only','created_at':self.clock()}
             d['message_hash']=message_hash(d); validate('Draft',d); u.put('Draft',d)
             u.link(lead_id,'HAS_DRAFT',d['id']); l=self._invalidate(u,l)
             u.put('Lead',{**l,'current_draft_id':d['id']})
             self._event(u,lead_id,'draft_created',body['command_id'],target='Awaiting outreach approval',
-                        payload={'draft_id':d['id'],'message_hash':d['message_hash']})
+                        payload={'draft_id':d['id'],'message_hash':d['message_hash'],
+                                 'generator':'qwen' if generated else 'human' if body['subject'] is not None else 'template',
+                                 'model_id':self.agents.model_id if generated else None})
             return self._save(u,action,body,self._detail(u.s,lead_id))
 
     def gate(self,lead_id):
