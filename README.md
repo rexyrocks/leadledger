@@ -12,6 +12,7 @@ LeadLedger is a graph-powered lead-generation prototype built with FalkorDB. It 
 
 - **GitHub:** [rexyrocks/leadledger](https://github.com/rexyrocks/leadledger)
 - **Demo dashboard:** [Open LeadLedger](https://leadledger.live/ui/)
+- **Demo video:** [Watch the narrated walkthrough](https://youtu.be/AdjHO9bNQAk) — labelled fixture replay with synthetic records and log-only sends.
 - **Demo API docs:** [Explore the API](https://leadledger.live/docs)
 
 The demo uses the custom domain `leadledger.live` through a named Cloudflare tunnel. It is available while the local app and tunnel are running on the host Mac; stopping them or putting the Mac to sleep takes the demo offline. Demo records are synthetic and sending is **log-only: no real emails are sent**.
