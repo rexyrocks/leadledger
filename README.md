@@ -6,6 +6,14 @@ LeadLedger is a hackathon prototype for a multi-agent lead-generation workflow w
 
 Built by **Kunal and Shubhangi** for Graph Hacks.
 
+## Repository and demo
+
+- **GitHub:** [rexyrocks/leadledger](https://github.com/rexyrocks/leadledger)
+- **Demo dashboard:** [Open LeadLedger](https://checked-writers-wales-davidson.trycloudflare.com/ui/)
+- **Demo API docs:** [Explore the API](https://checked-writers-wales-davidson.trycloudflare.com/docs)
+
+The demo uses a temporary Cloudflare tunnel and is available while the local app and tunnel are running. Its address may change after a restart. The custom domain, [leadledger.live](https://leadledger.live/ui/), is being configured; use the demo link above in the meantime. Demo records are synthetic and sending is **log-only: no real emails are sent**.
+
 > **Integrated workspace:** branch `kunal/agents-ui-qwen` adds Qwen Extractor/Checker adapters, conservative email checks, human-reviewed Qwen drafts and the local review UI. FalkorDB retains all state and send decisions. Seeded reports are labelled fixtures; Qwen is an explicit runtime mode. No real emails are sent.
 
 See [agents and UI setup](docs/AGENTS_UI.md). Quick start after installing dependencies: `python scripts/run_workspace.py --agents fixture --seed`, then open `http://127.0.0.1:8123/ui/`.
